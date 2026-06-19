@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+!packages/github-action/dist/
+packages/github-action/dist/*
+!packages/github-action/dist/index.js
+coverage/
+artifacts/
+.tmp/
+.npm-cache/
+.patchproof/
+*.tgz
+*.log
+.DS_Store
+.venv/
+__pycache__/
+.pytest_cache/

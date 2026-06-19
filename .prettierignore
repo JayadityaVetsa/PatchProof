@@ -1,0 +1,5 @@
+dist
+coverage
+artifacts
+pnpm-lock.yaml
+fixtures/generated

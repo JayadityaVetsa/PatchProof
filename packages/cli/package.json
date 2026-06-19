@@ -1,0 +1,32 @@
+{
+  "name": "patchproof",
+  "version": "0.1.0",
+  "description": "Prove that changed regression tests distinguish a patch from its base revision.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "patchproof": "dist/cli.cjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "devDependencies": {
+    "@patchproof/core": "workspace:*",
+    "@patchproof/git": "workspace:*",
+    "@patchproof/reporters": "workspace:*",
+    "commander": "^14.0.0",
+    "tsup": "^8.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@patchproof/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@patchproof/adapter-api": "workspace:*",
+    "@patchproof/adapter-javascript": "workspace:*",
+    "@patchproof/adapter-python": "workspace:*",
+    "@patchproof/git": "workspace:*",
+    "@patchproof/process": "workspace:*",
+    "yaml": "^2.8.0",
+    "zod": "^3.25.67"
+  }
+}

@@ -1,0 +1,43 @@
+name: PatchProof
+description: Prove that changed regression tests distinguish a patch from its base revision.
+author: PatchProof contributors
+inputs:
+  config:
+    description: Path to .patchproof.yml
+    required: false
+  base:
+    description: Explicit base revision
+    required: false
+  head:
+    description: Explicit head revision
+    required: false
+  adapter:
+    description: javascript or python
+    required: false
+  upload-report:
+    description: Upload the JSON evidence artifact
+    required: false
+    default: "true"
+  fail-on:
+    description: non-proven or a comma-separated list of aggregate statuses
+    required: false
+    default: non-proven
+outputs:
+  status:
+    description: Canonical aggregate status
+  report-path:
+    description: Generated JSON report path
+  proven-count:
+    description: Number of proven tests
+  not-proven-count:
+    description: Number of not-proven tests
+  still-failing-count:
+    description: Number of still-failing tests
+  inconclusive-count:
+    description: Number of inconclusive tests
+runs:
+  using: node24
+  main: packages/github-action/dist/index.js
+branding:
+  icon: check-circle
+  color: blue

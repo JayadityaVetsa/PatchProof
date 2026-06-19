@@ -1,0 +1,33 @@
+{
+  "name": "patchproof-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "corepack pnpm -r --if-present build",
+    "clean": "corepack pnpm -r --if-present clean",
+    "typecheck": "tsc -b --pretty false",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check": "corepack pnpm typecheck && corepack pnpm lint && corepack pnpm format && corepack pnpm test && corepack pnpm check:docs && corepack pnpm build",
+    "pack:cli": "corepack pnpm --filter patchproof pack --pack-destination artifacts",
+    "bundle:action": "corepack pnpm --filter @patchproof/github-action build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@types/node": "^22.15.32",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.29.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.1",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,13 @@
+name: Feature request
+description: Propose a focused extension to PatchProof
+body:
+  - type: textarea
+    attributes:
+      label: User problem and evidence
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true

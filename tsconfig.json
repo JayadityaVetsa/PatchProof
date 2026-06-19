@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/adapter-api" },
+    { "path": "packages/process" },
+    { "path": "packages/git" },
+    { "path": "packages/adapter-javascript" },
+    { "path": "packages/adapter-python" },
+    { "path": "packages/reporters" },
+    { "path": "packages/core" },
+    { "path": "packages/cli" },
+    { "path": "packages/github-action" }
+  ]
+}

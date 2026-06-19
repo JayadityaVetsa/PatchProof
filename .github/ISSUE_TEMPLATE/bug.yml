@@ -1,0 +1,14 @@
+name: Bug report
+description: Report incorrect or unsafe PatchProof behavior
+body:
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Include versions, base/head refs, configuration, command, and bounded logs.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected and observed result
+    validations:
+      required: true

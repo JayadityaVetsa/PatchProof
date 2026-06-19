@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "rootDir": "src", "outDir": "dist" },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../adapter-api" },
+    { "path": "../adapter-javascript" },
+    { "path": "../adapter-python" },
+    { "path": "../git" },
+    { "path": "../process" }
+  ]
+}

@@ -1,0 +1,19 @@
+name: PatchProof example
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  patchproof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Public consumers should replace this local path with a full immutable PatchProof commit SHA.
+      - uses: ./
+        with:
+          config: .patchproof.yml
