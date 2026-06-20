@@ -10,7 +10,7 @@ The project intends to follow [Keep a Changelog](https://keepachangelog.com/en/1
 
 - No unreleased changes.
 
-## [0.1.0] - 2026-06-18
+## [0.1.0-alpha.1] - 2026-06-19
 
 ### Added
 
@@ -18,3 +18,7 @@ The project intends to follow [Keep a Changelog](https://keepachangelog.com/en/1
 - Vitest, Jest, and pytest adapters.
 - Temporary Git worktree orchestration and conservative proof classification.
 - A bundled Node 24 GitHub Action, cross-platform CI, tests, and release packaging.
+- Source-span changed-test selection and the non-executing `patchproof inspect` command.
+- Privacy-safe reports with stable path placeholders and secret-value redaction.
+- Scoped package metadata for `@jayadityavetsa/patchproof`.
+- CodeQL, dependency review, Dependabot, immutable Action pins, SBOM, checksums, and release gates.

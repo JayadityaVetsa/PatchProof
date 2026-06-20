@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { computeDiff, createWorktrees, resolveRevision } from "../src/index.js";
+import { computeDiff, createWorktrees, resolveRevision, transplantFiles } from "../src/index.js";
 
 const exec = promisify(execFile);
 
@@ -32,7 +32,19 @@ describe("Git isolation", () => {
     const head = await resolveRevision(root, "HEAD");
     const diff = await computeDiff(root, base, head);
     expect(diff.entries[0]?.addedLines.length).toBeGreaterThan(0);
+    expect(diff.entries[0]?.changedRanges).toEqual([{ startLine: 3, endLine: 5 }]);
     const worktrees = await createWorktrees(root, base, head);
     expect(await worktrees.cleanup()).toEqual([]);
+  });
+
+  it("rejects traversal and production-file transplants", async () => {
+    const root = await fixtureRepository();
+    const head = await resolveRevision(root, "HEAD");
+    await expect(transplantFiles(root, head, root, ["../outside"], ["tests/**"])).rejects.toThrow(
+      /Unsafe repository path/,
+    );
+    await expect(
+      transplantFiles(root, head, root, ["test_sample.py"], ["tests/**"]),
+    ).rejects.toThrow(/non-test path/);
   });
 });

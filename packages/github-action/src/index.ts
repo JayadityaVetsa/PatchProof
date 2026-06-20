@@ -4,7 +4,7 @@ import process from "node:process";
 import { DefaultArtifactClient } from "@actions/artifact";
 import * as core from "@actions/core";
 import { context } from "@actions/github";
-import { exitCodeFor, loadConfig, prepareRun } from "@patchproof/core";
+import { exitCodeFor, loadConfig, prepareRun, TOOL_VERSION } from "@patchproof/core";
 import { findRepositoryRoot } from "@patchproof/git";
 import { renderJson, renderMarkdown } from "@patchproof/reporters";
 
@@ -43,6 +43,7 @@ async function main(): Promise<void> {
     const reportPath = resolve(repositoryRoot, "patchproof-report.json");
     await writeFile(reportPath, renderJson(report), "utf8");
     await core.summary.addRaw(renderMarkdown(report)).write();
+    core.setOutput("version", TOOL_VERSION);
     core.setOutput("status", report.aggregate);
     core.setOutput("report-path", reportPath);
     for (const status of ["proven", "not_proven", "still_failing", "inconclusive"] as const) {

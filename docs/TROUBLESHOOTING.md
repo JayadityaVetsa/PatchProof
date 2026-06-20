@@ -1,5 +1,27 @@
 # Troubleshooting
 
+## npm cannot find the local tarball
+
+Relative paths are resolved from the current terminal directory. Use the absolute quoted path to the tarball:
+
+```powershell
+npm install --global "C:\path\to\PatchProof\artifacts\jayadityavetsa-patchproof-0.1.0-alpha.1.tgz"
+```
+
+After publication:
+
+```console
+npm install --global @jayadityavetsa/patchproof@alpha
+```
+
+## Why was this test selected?
+
+```console
+patchproof inspect --base origin/main
+```
+
+Inspection shows changed ranges, source spans, selection reasons, targeting granularity, and fallback reasons without executing project code.
+
 ## Revision unavailable
 
 Fetch full history and retry. In GitHub Actions, configure `actions/checkout` with `fetch-depth: 0`.

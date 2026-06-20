@@ -6,7 +6,11 @@
 patchproof check [options]
 ```
 
-V1 exposes one primary command. Future commands must not change its status meanings.
+```console
+patchproof inspect [options]
+```
+
+`inspect` reports selected tests, source spans, selection and fallback reasons, support files, and commands without executing repository code. `check` performs the proof run. Future commands must not change canonical status meanings.
 
 ## Inputs
 
@@ -42,6 +46,8 @@ Before executing project commands locally, show:
 - Warning that commands run with user permissions.
 
 Require an interactive confirmation. Consent may be skipped only with `--yes`, `execution.approved: true`, or recognized CI mode. The report records the mechanism.
+
+`inspect` does not require consent because it performs no project command execution.
 
 ## Output
 

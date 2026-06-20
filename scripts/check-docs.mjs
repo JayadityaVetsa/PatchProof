@@ -2,7 +2,15 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
-const ignored = new Set(["node_modules", ".git", "dist", "coverage", "artifacts"]);
+const ignored = new Set([
+  "node_modules",
+  ".git",
+  ".tmp",
+  ".npm-cache",
+  "dist",
+  "coverage",
+  "artifacts",
+]);
 const markdown = [];
 
 async function walk(directory) {

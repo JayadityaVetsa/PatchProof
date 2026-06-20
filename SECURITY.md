@@ -1,51 +1,60 @@
 # Security Policy
 
-## Critical execution warning
-
-PatchProof runs dependency setup and test commands from repositories. Those commands execute code with the permissions of the local user or CI runner. A temporary Git worktree prevents accidental source-tree modification; it is **not a security sandbox**.
-
-Do not run PatchProof on untrusted code on a machine containing sensitive credentials or access to sensitive networks.
-
 ## Supported versions
 
-Before the first release, no version is supported. After release, the latest minor release will receive security fixes; the exact policy will be listed here.
+During the public alpha, security fixes are provided for the newest `0.1.x` prerelease only. Older prereleases may be superseded rather than patched.
 
-## Reporting a vulnerability
+## Report vulnerabilities privately
 
-Use GitHub private vulnerability reporting when the repository enables it. Until then, contact the maintainer through a private address added before public launch. Do not include exploit details in a public issue.
+Use GitHub's **Report a vulnerability** button in the repository Security tab. Do not publish exploit details in an issue, discussion, pull request, or workflow log.
 
-Please include:
+Include:
 
 - Affected version or commit.
 - Reproduction steps.
 - Expected and observed impact.
-- Relevant platform and configuration.
-- Suggested mitigation, if known.
+- Platform and relevant configuration with secrets removed.
+- A suggested mitigation, if available.
 
-The project will acknowledge reports promptly, investigate, coordinate a fix and disclosure date, and credit reporters who wish to be named.
+## Critical execution boundary
 
-## Threat model highlights
+PatchProof executes repository dependency installation and test commands with the permissions of the local user or CI runner. Temporary Git worktrees isolate working copies; they are not an operating-system sandbox.
 
-- Malicious test/setup commands.
-- Shell or workflow-command injection.
-- Secret leakage through logs.
-- Path traversal or symlink escape.
-- Destructive cleanup targeting the wrong directory.
-- Compromised third-party dependencies or Actions.
-- Untrusted fork code on persistent self-hosted runners.
-- False `proven` caused by misclassified infrastructure failure.
+Do not run untrusted code on a workstation or persistent runner with secrets, privileged credentials, sensitive files, or access to sensitive networks.
 
-## GitHub Actions guidance
+For public pull requests:
 
-- Use the `pull_request` event for untrusted PR code.
-- Do not use `pull_request_target` to check out and execute PR code.
-- Set `permissions: contents: read`.
-- Do not expose repository secrets to proof jobs.
-- Prefer GitHub-hosted ephemeral runners for public repositories.
-- Pin third-party actions to full commit SHAs.
+- Use `pull_request`, never `pull_request_target` with contributor code.
+- Use `permissions: contents: read`.
+- Do not provide repository or environment secrets.
+- Prefer ephemeral GitHub-hosted runners.
+- Pin Actions to full commit SHAs.
 
-GitHub's [secure use reference](https://docs.github.com/en/actions/reference/security/secure-use) explains least privilege, immutable action pins, and the risks of self-hosted runners.
+## Threat model
 
-## Security boundaries
+PatchProof treats these as security-sensitive:
 
-V1 provides consent, isolation of working copies, careful process invocation, bounded/redacted output, and cleanup validation. V1 does not provide OS-level containment. Container execution may be added later but must not be marketed as a complete sandbox without an independent security review.
+- Malicious setup, package-manager, test, and shell commands.
+- Shell argument and command-template injection.
+- GitHub workflow-command injection through subprocess output.
+- Secret, credential, local username, home-directory, and temporary-path leakage.
+- Path traversal, absolute paths, symlinks, and support-file escape.
+- Cleanup targeting the active checkout or arbitrary directories.
+- Partial worktree creation, interruption, timeout, and orphan processes.
+- Compromised dependencies or mutable third-party Actions.
+- Fork pull requests receiving credentials.
+- Syntax, import, collection, crash, timeout, or infrastructure failures being mislabeled `proven`.
+
+## Built-in mitigations
+
+- Explicit local execution consent.
+- Argument-vector commands where possible.
+- Bounded execution time and output.
+- Process-tree termination.
+- Detached temporary worktrees and cleanup journaling.
+- Test/support allowlists and repository-relative path validation.
+- Privacy-redacted reports and neutralized workflow commands.
+- Conservative evidence classification: uncertainty becomes `inconclusive`.
+- No telemetry, account, hosted backend, required AI, or proof-classification network service.
+
+PatchProof cannot guarantee that arbitrary repository output contains no domain-specific secrets. Review artifacts before sharing them.

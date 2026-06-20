@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { prepareRun, type PatchProofConfig } from "../src/index.js";
+import { inspectRun, prepareRun, type PatchProofConfig } from "../src/index.js";
 
 const exec = promisify(execFile);
 
@@ -62,13 +62,27 @@ describe("proof orchestration", () => {
       allowDirty: false,
       consent: "configuration",
     });
+    const inspection = await inspectRun({
+      repositoryRoot: root,
+      config,
+      allowDirty: false,
+    });
+    expect(inspection.tests[0]).toMatchObject({
+      id: "tests/regression.test.js::fixed behavior",
+      selectionReason: "The test was added in the head revision.",
+    });
+    expect(JSON.stringify(inspection)).not.toContain(root);
     const report = await prepared.execute();
     expect(report.aggregate).toBe("proven");
     expect(report.tests[0]).toMatchObject({
       status: "proven",
       base: { outcome: "assertion_failure" },
       head: { outcome: "pass" },
+      selection: {
+        reason: "The test was added in the head revision.",
+      },
     });
+    expect(JSON.stringify(report)).not.toContain(root);
     expect(report.suite.status).toBe("healthy");
   }, 30_000);
 });

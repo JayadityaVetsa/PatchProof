@@ -32,4 +32,32 @@ describe("process runner", () => {
     );
     expect(result.timedOut).toBe(true);
   });
+
+  it("bounds large logs and neutralizes workflow commands", async () => {
+    const result = await runCommand(
+      {
+        executable: process.execPath,
+        args: ["-e", "console.log('::warning::unsafe'); console.log('x'.repeat(10000))"],
+        display: "node large-log",
+      },
+      { cwd: process.cwd(), timeoutMs: 5_000, maxOutputBytes: 128 },
+    );
+    expect(result.truncated).toBe(true);
+    expect(Buffer.byteLength(result.stdout)).toBeLessThanOrEqual(131);
+    expect(result.stdout.startsWith("::")).toBe(false);
+  });
+
+  it("honors AbortSignal interruption", async () => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 50);
+    const result = await runCommand(
+      {
+        executable: process.execPath,
+        args: ["-e", "setTimeout(() => {}, 10000)"],
+        display: "node interrupted",
+      },
+      { cwd: process.cwd(), timeoutMs: 5_000, signal: controller.signal },
+    );
+    expect(result.interrupted).toBe(true);
+  });
 });

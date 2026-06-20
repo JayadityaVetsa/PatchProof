@@ -15,20 +15,35 @@ permissions:
 
 jobs:
   release:
+    environment: npm-release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
-      - run: pnpm check
-      - run: pnpm pack:cli
+      - run: npm install --global npm@11.5.1
+      - run: pnpm release:verify
+      - name: Verify release identity
+        shell: bash
+        run: |
+          test "${GITHUB_REF}" = "refs/tags/v0.1.0-alpha.1"
+          test "$(node -p "require('./version.json').version")" = "0.1.0-alpha.1"
+          test "$(node -p "require('./packages/cli/package.json').version")" = "0.1.0-alpha.1"
       - name: Publish
         if: ${{ inputs.publish }}
-        run: pnpm --filter patchproof publish --provenance --access public
+        run: pnpm --filter @jayadityavetsa/patchproof publish --provenance --access public --tag alpha
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: patchproof-release-artifacts
+          path: |
+            artifacts/*.tgz
+            artifacts/SHA256SUMS
+            artifacts/patchproof-sbom.cdx.json

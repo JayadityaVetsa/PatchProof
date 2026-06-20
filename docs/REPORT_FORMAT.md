@@ -19,14 +19,14 @@ Aggregate-only:
 - `regression`
 - `error`
 
-## Proposed JSON
+## JSON schema version 1
 
 ```json
 {
   "schemaVersion": 1,
-  "tool": { "name": "patchproof", "version": "0.1.0" },
+  "tool": { "name": "patchproof", "version": "0.1.0-alpha.1" },
   "repository": {
-    "root": "<redacted-or-relative>",
+    "root": "<repository>",
     "baseSha": "41e8c91...",
     "headSha": "a02f7d4...",
     "dirtyOverride": false
@@ -42,6 +42,11 @@ Aggregate-only:
       "id": "tests/divide.test.ts::accepts boundary",
       "file": "tests/divide.test.ts",
       "status": "proven",
+      "selection": {
+        "changedRanges": [{ "startLine": 12, "endLine": 14 }],
+        "sourceRange": { "startLine": 10, "endLine": 16 },
+        "reason": "Changed lines overlap the test's source span."
+      },
       "base": { "outcome": "assertion_failure", "exitCode": 1, "durationMs": 900 },
       "head": { "outcome": "pass", "exitCode": 0, "durationMs": 700 },
       "diagnostics": []
@@ -87,3 +92,4 @@ Every human report contains:
 - Consumers must ignore unknown fields.
 - Canonical status strings do not change without a major-version decision.
 - Paths and logs that could reveal secrets are redacted according to policy.
+- Repository, worktree, temporary, and home paths use stable placeholders. Debug reports remain redacted.

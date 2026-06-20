@@ -8,7 +8,7 @@ export default defineConfig({
   bundle: true,
   noExternal: [/.*/],
   minify: true,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   outDir: "dist",
   outExtension: () => ({ js: ".cjs" }),

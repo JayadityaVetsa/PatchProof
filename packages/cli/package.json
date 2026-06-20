@@ -1,7 +1,24 @@
 {
-  "name": "patchproof",
-  "version": "0.1.0",
+  "name": "@jayadityavetsa/patchproof",
+  "version": "0.1.0-alpha.1",
   "description": "Prove that changed regression tests distinguish a patch from its base revision.",
+  "keywords": [
+    "testing",
+    "regression-test",
+    "git",
+    "github-actions",
+    "pytest",
+    "jest",
+    "vitest"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JayadityaVetsa/PatchProof.git"
+  },
+  "homepage": "https://github.com/JayadityaVetsa/PatchProof#readme",
+  "bugs": {
+    "url": "https://github.com/JayadityaVetsa/PatchProof/issues"
+  },
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
@@ -16,6 +33,8 @@
     "node": ">=22"
   },
   "scripts": {
+    "prepack": "node scripts/prepare-package.mjs",
+    "postpack": "node scripts/cleanup-package.mjs",
     "build": "tsup --config tsup.config.ts",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
   },
@@ -27,6 +46,7 @@
     "tsup": "^8.5.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

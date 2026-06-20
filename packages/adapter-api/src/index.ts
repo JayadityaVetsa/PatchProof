@@ -15,6 +15,9 @@ export type SuiteStatus =
   | "inconclusive"
   | "not_run";
 
+export const TOOL_NAME = "patchproof" as const;
+export { TOOL_VERSION } from "./version.generated.js";
+
 export interface Diagnostic {
   readonly code: string;
   readonly severity: "info" | "warning" | "error";
@@ -48,6 +51,7 @@ export interface RepositoryDiffEntry {
   readonly path: string;
   readonly oldPath?: string;
   readonly addedLines: readonly number[];
+  readonly changedRanges: readonly SourceRange[];
 }
 
 export interface RepositoryDiff {
@@ -63,7 +67,23 @@ export interface DiscoveredTest {
   readonly changeKind: "added" | "modified" | "deleted";
   readonly granularity: "case" | "file";
   readonly line?: number;
+  readonly sourceRange?: SourceRange;
+  readonly changedRanges: readonly SourceRange[];
+  readonly selectionReason: string;
+  readonly fallbackReason?: string;
   readonly diagnostics: readonly Diagnostic[];
+}
+
+export interface SourceRange {
+  readonly startLine: number;
+  readonly endLine: number;
+}
+
+export interface SelectionEvidence {
+  readonly changedRanges: readonly SourceRange[];
+  readonly sourceRange?: SourceRange;
+  readonly reason: string;
+  readonly fallbackReason?: string;
 }
 
 export interface DetectionResult {
@@ -121,6 +141,7 @@ export interface TestEvidence {
   readonly file: string;
   readonly displayName: string;
   readonly granularity: "case" | "file";
+  readonly selection: SelectionEvidence;
   readonly status: TestStatus;
   readonly base?: ProcessEvidence;
   readonly head?: ProcessEvidence;
@@ -136,9 +157,9 @@ export interface SuiteEvidence {
 
 export interface PatchProofReport {
   readonly schemaVersion: 1;
-  readonly tool: { readonly name: "patchproof"; readonly version: string };
+  readonly tool: { readonly name: typeof TOOL_NAME; readonly version: string };
   readonly repository: {
-    readonly root: string;
+    readonly root: "<repository>";
     readonly projectRoot: string;
     readonly baseSha: string;
     readonly headSha: string;
@@ -153,6 +174,28 @@ export interface PatchProofReport {
   readonly tests: readonly TestEvidence[];
   readonly suite: SuiteEvidence;
   readonly aggregate: AggregateStatus;
+  readonly diagnostics: readonly Diagnostic[];
+  readonly limitations: readonly string[];
+}
+
+export interface InspectionResult {
+  readonly schemaVersion: 1;
+  readonly tool: { readonly name: typeof TOOL_NAME; readonly version: string };
+  readonly repository: {
+    readonly root: "<repository>";
+    readonly projectRoot: string;
+    readonly baseSha: string;
+    readonly headSha: string;
+    readonly dirtyOverride: boolean;
+  };
+  readonly adapter: AdapterName;
+  readonly tests: readonly DiscoveredTest[];
+  readonly supportFiles: readonly string[];
+  readonly commands: {
+    readonly setup: string;
+    readonly targeted: readonly { readonly testId: string; readonly command: string }[];
+    readonly suite: string;
+  };
   readonly diagnostics: readonly Diagnostic[];
   readonly limitations: readonly string[];
 }

@@ -1,6 +1,6 @@
-# Compatibility
+# Alpha Compatibility
 
-PatchProof v0.1 supports:
+PatchProof `0.1.0-alpha.1` is tested against:
 
 | Surface               | Supported versions                 |
 | --------------------- | ---------------------------------- |
@@ -14,3 +14,5 @@ PatchProof v0.1 supports:
 One project is evaluated per invocation. Repositories with multiple detected projects must set `projectRoot`.
 
 Unknown test frameworks can use explicit setup, targeted-test, and suite commands, but PatchProof remains conservative: an unrecognized non-zero result is infrastructure failure rather than proof.
+
+This matrix is an alpha target, not a claim that every project using these runtimes is supported. Dynamic tests and unusual layouts may require explicit configuration or file-level fallback.

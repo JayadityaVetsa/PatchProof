@@ -1,0 +1,18 @@
+version: 1
+adapter: javascript
+projectRoot: .
+execution:
+  setup: [corepack, pnpm, install, --frozen-lockfile]
+  targetedTest: [corepack, pnpm, vitest, run, "{test_file}"]
+  suite: [corepack, pnpm, test]
+  timeoutSeconds: 120
+  suiteTimeoutSeconds: 300
+tests:
+  include:
+    - "packages/**/test/**/*.test.ts"
+  support:
+    - "package.json"
+    - "pnpm-lock.yaml"
+    - "pnpm-workspace.yaml"
+    - "tsconfig*.json"
+    - "vitest.config.ts"
