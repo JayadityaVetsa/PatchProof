@@ -143,6 +143,13 @@ function worktreeContext(
   return { ...context, worktreeRoot, role };
 }
 
+export function repositoryPattern(projectRoot: string, pattern: string): string {
+  if (projectRoot === "." || pattern === projectRoot || pattern.startsWith(`${projectRoot}/`)) {
+    return pattern;
+  }
+  return `${projectRoot}/${pattern}`;
+}
+
 function evidence(
   command: CommandSpec,
   role: "base" | "head",
@@ -342,8 +349,12 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
         const support = await selected.adapter.supportFiles(context, diff);
         const transplant = [...new Set([...eligible.map((test) => test.file), ...support])];
         const allowed = [
-          ...options.config.tests.include,
-          ...options.config.tests.support,
+          ...options.config.tests.include.map((pattern) =>
+            repositoryPattern(selected.projectRoot, pattern),
+          ),
+          ...options.config.tests.support.map((pattern) =>
+            repositoryPattern(selected.projectRoot, pattern),
+          ),
           "**/*.test.{js,jsx,ts,tsx,mjs,cjs}",
           "**/*.spec.{js,jsx,ts,tsx,mjs,cjs}",
           "**/test_*.py",

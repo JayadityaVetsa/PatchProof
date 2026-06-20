@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "workflowRun": "https://github.com/JayadityaVetsa/PatchProof/actions/runs/27885630451",
+  "recordedAt": "2026-06-20",
+  "summary": {
+    "repositories": 10,
+    "targetedProven": 2,
+    "targetedNotProven": 2,
+    "targetedInconclusive": 6,
+    "unsupportedBeforeExecution": 0,
+    "aggregateInconclusive": 10
+  },
+  "results": [
+    {
+      "id": "axios-http-adapter-error",
+      "targetedStatus": "proven",
+      "aggregateStatus": "inconclusive",
+      "cause": "The selected regression test failed on base and passed on head; unrelated full-suite timeouts made the aggregate conservative."
+    },
+    {
+      "id": "click-fish-completion",
+      "targetedStatus": "not_proven",
+      "aggregateStatus": "inconclusive",
+      "cause": "The selected changed test passed on both revisions; the clean suite hit a pytest collection compatibility failure."
+    },
+    {
+      "id": "date-fns-chinese-month",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "The nested-project transplant bug was fixed; the historical locale test command still did not produce trustworthy targeted or suite execution."
+    },
+    {
+      "id": "httpx-request-timeout",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "Historical Trio warning-filter compatibility prevented trustworthy pytest execution."
+    },
+    {
+      "id": "pydantic-generator-max-length",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "The historical test configuration required the pytest-benchmark plugin."
+    },
+    {
+      "id": "pytest-initial-conftest",
+      "targetedStatus": "not_proven",
+      "aggregateStatus": "inconclusive",
+      "cause": "The selected test passed on both revisions; unrelated collection failures made the suite comparison inconclusive."
+    },
+    {
+      "id": "requests-file-wrapper",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "The minimal benchmark environment lacked dependencies required by the historical requests test suite."
+    },
+    {
+      "id": "vite-null-export-glob",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "The historical workspace resolved an incompatible modern Vitest/Vite execution path."
+    },
+    {
+      "id": "vitest-inline-diff-config",
+      "targetedStatus": "inconclusive",
+      "aggregateStatus": "inconclusive",
+      "cause": "The historical monorepo command could not resolve its locally built Vitest CLI."
+    },
+    {
+      "id": "zod-default-map-set-clone",
+      "targetedStatus": "proven",
+      "aggregateStatus": "inconclusive",
+      "cause": "All four selected changed tests failed on base and passed on head; an unrelated historical full-suite failure kept the aggregate conservative."
+    }
+  ]
+}

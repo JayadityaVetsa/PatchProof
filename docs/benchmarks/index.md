@@ -12,6 +12,18 @@ The benchmark records:
 
 Results are generated from [`benchmarks/manifest.json`](https://github.com/JayadityaVetsa/PatchProof/blob/main/benchmarks/manifest.json). Unsupported and inconclusive cases remain visible rather than being excluded.
 
+## First full run
+
+The first full run evaluated all ten repositories on June 20, 2026:
+
+- Two repositories produced `proven` targeted evidence: one axios test and four Zod tests.
+- Two repositories produced `not_proven` targeted evidence.
+- Six repositories produced `inconclusive` targeted evidence.
+- One case exposed a pre-execution nested-project transplant bug, which was fixed and rerun.
+- All ten aggregate results remained `inconclusive` because the historical clean suites did not run reliably in the minimal modern environment.
+
+This is not presented as a 10/10 success story. It demonstrates that PatchProof preserves uncertainty and that historical dependency reconstruction is the primary benchmark challenge. See the permanent [machine-readable results](https://github.com/JayadityaVetsa/PatchProof/blob/main/benchmarks/check-results.json) and the [workflow run](https://github.com/JayadityaVetsa/PatchProof/actions/runs/27885630451).
+
 <!-- benchmark-summary:start -->
 
 | Case                          | Mode    | Status   | Tests |
