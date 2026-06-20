@@ -8,14 +8,14 @@
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@actions/artifact": "^2.3.2",
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
+    "@actions/artifact": "^6.2.1",
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
     "@patchproof/core": "workspace:*",
     "@patchproof/git": "workspace:*",
     "@patchproof/reporters": "workspace:*"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@vercel/ncc": "^0.44.0"
   }
 }

@@ -42,7 +42,7 @@
     "@patchproof/core": "workspace:*",
     "@patchproof/git": "workspace:*",
     "@patchproof/reporters": "workspace:*",
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "tsup": "^8.5.0"
   },
   "publishConfig": {
