@@ -17,3 +17,4 @@ jobs:
       - uses: ./
         with:
           config: .patchproof.yml
+          fail-on: regression
