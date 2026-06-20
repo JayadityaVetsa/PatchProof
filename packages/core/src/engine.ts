@@ -153,6 +153,17 @@ function evidence(
   };
 }
 
+function failureDetail(process: ProcessEvidence): string {
+  const output = [process.stderr.trim(), process.stdout.trim()].filter(Boolean).join("\n");
+  const bounded =
+    output.length > 4_000 ? `${output.slice(-4_000)}\n[earlier output omitted]` : output;
+  return [
+    `Command: ${process.command.display}`,
+    `Exit code: ${process.exitCode ?? "none"}`,
+    bounded ? `Output:\n${bounded}` : "The command produced no output.",
+  ].join("\n");
+}
+
 async function execute(
   adapter: PatchProofAdapter,
   command: CommandSpec,
@@ -184,6 +195,11 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
   ]);
   if (dirty && !options.allowDirty) {
     throw new Error("The active worktree is dirty. Commit/stash changes or pass --allow-dirty.");
+  }
+  if (baseSha === headSha) {
+    throw new Error(
+      "Base and head resolve to the same commit, so there is no patch to prove. Check out a feature/demo branch or pass --base origin/main --head <branch-or-commit>.",
+    );
   }
   if (!(await isAncestor(root, baseSha, headSha))) {
     throw new Error("Base is not an ancestor of head. Choose a valid comparison base.");
@@ -247,7 +263,7 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
             options.signal,
           );
           if (setup.outcome !== "pass") {
-            throw new Error(`Base setup failed (${setup.outcome}).`);
+            throw new Error(`Base setup failed (${setup.outcome}).\n${failureDetail(setup)}`);
           }
         }
         if (setupHead) {
@@ -260,7 +276,7 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
             options.signal,
           );
           if (setup.outcome !== "pass") {
-            throw new Error(`Head setup failed (${setup.outcome}).`);
+            throw new Error(`Head setup failed (${setup.outcome}).\n${failureDetail(setup)}`);
           }
         }
 

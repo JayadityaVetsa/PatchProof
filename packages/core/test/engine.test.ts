@@ -84,5 +84,14 @@ describe("proof orchestration", () => {
     });
     expect(JSON.stringify(report)).not.toContain(root);
     expect(report.suite.status).toBe("healthy");
+
+    await expect(
+      prepareRun({
+        repositoryRoot: root,
+        config: { ...config, base: head, head },
+        allowDirty: false,
+        consent: "configuration",
+      }),
+    ).rejects.toThrow("Base and head resolve to the same commit");
   }, 30_000);
 });

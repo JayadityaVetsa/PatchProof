@@ -1,5 +1,25 @@
 # Troubleshooting
 
+## Base and head are the same commit
+
+Running `patchproof check` while checked out on `main` usually compares `main` with itself. There is no patch in that situation. Check out the pull-request or demo branch first:
+
+```powershell
+git fetch origin
+git switch <demo-branch>
+patchproof check --base origin/main --head HEAD
+```
+
+You can preview the selection without executing project commands:
+
+```powershell
+patchproof inspect --base origin/main --head HEAD
+```
+
+## Dependency setup failed
+
+PatchProof installs each revision independently. Starting with the next alpha, setup errors include the redacted command, exit code, and bounded pip/npm output. Common causes are an unsupported Python/Node version, unavailable package registry, or a project installation command that differs from `.patchproof.yml`.
+
 ## npm cannot find the local tarball
 
 Relative paths are resolved from the current terminal directory. Use the absolute quoted path to the tarball:
