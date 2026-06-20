@@ -64,7 +64,9 @@ async function pythonExecutable(): Promise<string> {
   return "python";
 }
 
-async function parseTests(file: string): Promise<Array<{ name: string; line: number }>> {
+async function parseTests(
+  file: string,
+): Promise<Array<{ name: string; line: number; endLine: number }>> {
   try {
     const executable = await pythonExecutable();
     const script = [
@@ -73,7 +75,7 @@ async function parseTests(file: string): Promise<Array<{ name: string; line: num
       "out=[]",
       "def walk(body,prefix=[]):",
       "  for n in body:",
-      "    if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name.startswith('test_'): out.append({'name':'::'.join(prefix+[n.name]),'line':n.lineno})",
+      "    if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name.startswith('test_'): out.append({'name':'::'.join(prefix+[n.name]),'line':min([n.lineno]+[d.lineno for d in n.decorator_list]),'endLine':getattr(n,'end_lineno',n.lineno)})",
       "    elif isinstance(n,ast.ClassDef) and n.name.startswith('Test'): walk(n.body,prefix+[n.name])",
       "walk(tree.body)",
       "print(json.dumps(out))",
@@ -86,19 +88,35 @@ async function parseTests(file: string): Promise<Array<{ name: string; line: num
     return JSON.parse(stdout);
   } catch {
     const source = await readFile(file, "utf8");
-    const found: Array<{ name: string; line: number }> = [];
+    const found: Array<{ name: string; line: number; endLine: number }> = [];
     let currentClass: { name: string; indent: number } | null = null;
-    source.split(/\r?\n/).forEach((line, index) => {
+    const lines = source.split(/\r?\n/);
+    let decoratorStart: number | null = null;
+    lines.forEach((line, index) => {
       const indent = line.match(/^\s*/)?.[0].replaceAll("\t", "    ").length ?? 0;
       const classMatch = /^\s*class\s+(Test\w*)\b/.exec(line);
       if (classMatch?.[1]) currentClass = { name: classMatch[1], indent };
       else if (currentClass && line.trim() && indent <= currentClass.indent) currentClass = null;
       const functionMatch = /^\s*(?:async\s+)?def\s+(test_\w*)\s*\(/.exec(line);
       if (functionMatch?.[1]) {
+        let endLine = index + 1;
+        for (let next = index + 1; next < lines.length; next += 1) {
+          const candidate = lines[next] ?? "";
+          if (!candidate.trim()) continue;
+          const candidateIndent = candidate.match(/^\s*/)?.[0].replaceAll("\t", "    ").length ?? 0;
+          if (candidateIndent <= indent) break;
+          endLine = next + 1;
+        }
         found.push({
           name: currentClass ? `${currentClass.name}::${functionMatch[1]}` : functionMatch[1],
-          line: index + 1,
+          line: decoratorStart ?? index + 1,
+          endLine,
         });
+        decoratorStart = null;
+      } else if (/^\s*@/.test(line)) {
+        decoratorStart ??= index + 1;
+      } else if (line.trim() && !classMatch) {
+        decoratorStart = null;
       }
     });
     return found;
@@ -178,13 +196,17 @@ export class PythonAdapter implements PatchProofAdapter {
           displayName: projectPath,
           changeKind: "deleted",
           granularity: "file",
+          changedRanges: entry.changedRanges,
+          selectionReason: "The test file was deleted and cannot be evaluated.",
           diagnostics: [],
         });
         continue;
       }
       try {
         const cases = (await parseTests(resolve(context.repositoryRoot, entry.path))).filter(
-          (item) => entry.status === "added" || entry.addedLines.includes(item.line),
+          (item) =>
+            entry.status === "added" ||
+            entry.addedLines.some((line) => line >= item.line && line <= item.endLine),
         );
         if (!cases.length) throw new Error("No statically changed pytest case found.");
         tests.push(
@@ -195,6 +217,12 @@ export class PythonAdapter implements PatchProofAdapter {
             changeKind: entry.status === "added" ? ("added" as const) : ("modified" as const),
             granularity: "case" as const,
             line: item.line,
+            sourceRange: { startLine: item.line, endLine: item.endLine },
+            changedRanges: entry.changedRanges,
+            selectionReason:
+              entry.status === "added"
+                ? "The test was added in the head revision."
+                : "Changed lines overlap the test's source span.",
             diagnostics: [],
           })),
         );
@@ -205,6 +233,9 @@ export class PythonAdapter implements PatchProofAdapter {
           displayName: projectPath,
           changeKind: entry.status === "added" ? "added" : "modified",
           granularity: "file",
+          changedRanges: entry.changedRanges,
+          selectionReason: "The changed test file could not be targeted reliably by case.",
+          fallbackReason: String(error),
           diagnostics: [
             {
               code: "PP_DISCOVERY_FILE_FALLBACK",

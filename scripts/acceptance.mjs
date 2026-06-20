@@ -56,8 +56,20 @@ const head = (
 
 const command =
   process.platform === "win32"
-    ? { executable: "cmd.exe", args: ["/d", "/s", "/c", cli] }
+    ? { executable: "cmd.exe", args: ["/d", "/s", "/c", "call", cli] }
     : { executable: cli, args: [] };
+const { stdout: inspectionOutput } = await exec(
+  command.executable,
+  [...command.args, "inspect", "--base", base, "--head", head, "--format", "json"],
+  { cwd: root, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 },
+);
+const inspection = JSON.parse(inspectionOutput);
+if (
+  inspection.tests?.[0]?.id !== "tests/regression.test.js::fixed behavior" ||
+  inspection.repository?.root !== "<repository>"
+) {
+  throw new Error(`Acceptance inspection failed.\n${inspectionOutput}`);
+}
 const { stdout, stderr } = await exec(
   command.executable,
   [

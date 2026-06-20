@@ -75,6 +75,17 @@ function parseAddedLines(patch: string): Map<string, number[]> {
   return result;
 }
 
+function toRanges(lines: readonly number[]): Array<{ startLine: number; endLine: number }> {
+  const sorted = [...new Set(lines)].sort((a, b) => a - b);
+  const ranges: Array<{ startLine: number; endLine: number }> = [];
+  for (const line of sorted) {
+    const previous = ranges.at(-1);
+    if (previous && line <= previous.endLine + 1) previous.endLine = line;
+    else ranges.push({ startLine: line, endLine: line });
+  }
+  return ranges;
+}
+
 export async function computeDiff(
   root: string,
   baseSha: string,
@@ -102,12 +113,14 @@ export async function computeDiff(
         oldPath: first,
         path: second,
         addedLines: lines.get(second) ?? [],
+        changedRanges: toRanges(lines.get(second) ?? []),
       });
     } else {
       entries.push({
         status: kind === "A" ? "added" : kind === "D" ? "deleted" : "modified",
         path: first,
         addedLines: lines.get(first) ?? [],
+        changedRanges: toRanges(lines.get(first) ?? []),
       });
     }
   }

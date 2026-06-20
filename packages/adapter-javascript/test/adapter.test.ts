@@ -27,10 +27,65 @@ describe("JavaScript adapter", () => {
       {
         baseSha: "base",
         headSha: "head",
-        entries: [{ status: "added", path: "tests/value.test.ts", addedLines: [1, 2] }],
+        entries: [
+          {
+            status: "added",
+            path: "tests/value.test.ts",
+            addedLines: [1, 2],
+            changedRanges: [{ startLine: 1, endLine: 2 }],
+          },
+        ],
       },
     );
-    expect(tests[0]).toMatchObject({ displayName: "boundary", granularity: "case" });
+    expect(tests[0]).toMatchObject({
+      displayName: "boundary",
+      granularity: "case",
+      sourceRange: { startLine: 2, endLine: 2 },
+    });
+  });
+
+  it("selects edits inside nested and table-driven test bodies", async () => {
+    const root = await mkdtemp(join(tmpdir(), "patchproof-js-spans-"));
+    await mkdir(join(root, "tests"));
+    await writeFile(
+      join(root, "package.json"),
+      JSON.stringify({ devDependencies: { jest: "^30.0.0" } }),
+    );
+    await writeFile(
+      join(root, "tests", "value.test.ts"),
+      [
+        "describe('math', () => {",
+        "  test.each([[1, 2]])('adds %s', (a, b) => {",
+        "    const result = a + b;",
+        "    expect(result).toBe(3);",
+        "  });",
+        "});",
+      ].join("\n"),
+    );
+    const tests = await new JavaScriptAdapter().discoverTests(
+      {
+        repositoryRoot: root,
+        projectRoot: ".",
+        configuration: { include: [], exclude: [], support: [] },
+      },
+      {
+        baseSha: "base",
+        headSha: "head",
+        entries: [
+          {
+            status: "modified",
+            path: "tests/value.test.ts",
+            addedLines: [4],
+            changedRanges: [{ startLine: 4, endLine: 4 }],
+          },
+        ],
+      },
+    );
+    expect(tests[0]).toMatchObject({
+      displayName: "math > adds %s",
+      granularity: "case",
+      selectionReason: "Changed lines overlap the test's source span.",
+    });
   });
 
   it("treats module errors as infrastructure failures", () => {

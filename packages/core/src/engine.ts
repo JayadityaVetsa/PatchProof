@@ -5,6 +5,7 @@ import type {
   CommandSpec,
   Diagnostic,
   DiscoveredTest,
+  InspectionResult,
   NormalizedOutcome,
   PatchProofAdapter,
   PatchProofReport,
@@ -14,6 +15,7 @@ import type {
   TestEvidence,
   WorktreeContext,
 } from "@patchproof/adapter-api";
+import { TOOL_NAME, TOOL_VERSION } from "@patchproof/adapter-api";
 import { JavaScriptAdapter } from "@patchproof/adapter-javascript";
 import { PythonAdapter } from "@patchproof/adapter-python";
 import {
@@ -28,6 +30,7 @@ import {
 import { runCommand } from "@patchproof/process";
 import { aggregateStatus, classifyTest, compareSuites } from "./classifier.js";
 import type { PatchProofConfig } from "./config.js";
+import { redactText, sanitizeReport, secretEnvironmentValues } from "./privacy.js";
 
 const adapters: readonly PatchProofAdapter[] = [new JavaScriptAdapter(), new PythonAdapter()];
 
@@ -163,6 +166,7 @@ async function execute(
     cwd: resolve(context.worktreeRoot, context.projectRoot),
     timeoutMs,
     signal,
+    redactions: [context.repositoryRoot, context.worktreeRoot, ...secretEnvironmentValues()],
   });
   return evidence(command, context.role, startedAt, started, raw, adapter.normalize(raw, "test"));
 }
@@ -340,11 +344,11 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
           testEvidence.map((test) => test.status),
           suite.status,
         );
-        return {
+        const report: PatchProofReport = {
           schemaVersion: 1,
-          tool: { name: "patchproof", version: "0.1.0" },
+          tool: { name: TOOL_NAME, version: TOOL_VERSION },
           repository: {
-            root,
+            root: "<repository>",
             projectRoot: selected.projectRoot,
             baseSha,
             headSha,
@@ -361,6 +365,7 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
           aggregate,
           diagnostics: globalDiagnostics,
           limitations: [
+            "PatchProof selects changed tests; it does not infer the production bug or prove the entire patch.",
             "Proof applies only to the reported tests and revisions.",
             "Commands run on the host with the current user's permissions.",
             ...(dirty && options.allowDirty
@@ -368,6 +373,10 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
               : []),
           ],
         };
+        return sanitizeReport(report, {
+          repositoryRoot: root,
+          worktreeRoot: worktrees.root,
+        });
       } finally {
         if (worktrees && !options.config.execution.keepWorktrees) {
           const failures = await worktrees.cleanup();
@@ -402,6 +411,12 @@ async function evaluateTest(
       file: test.file,
       displayName: test.displayName,
       granularity: test.granularity,
+      selection: {
+        changedRanges: test.changedRanges,
+        ...(test.sourceRange ? { sourceRange: test.sourceRange } : {}),
+        reason: test.selectionReason,
+        ...(test.fallbackReason ? { fallbackReason: test.fallbackReason } : {}),
+      },
       status: classifyTest(base.outcome, head.outcome),
       base,
       head,
@@ -413,6 +428,12 @@ async function evaluateTest(
       file: test.file,
       displayName: test.displayName,
       granularity: test.granularity,
+      selection: {
+        changedRanges: test.changedRanges,
+        ...(test.sourceRange ? { sourceRange: test.sourceRange } : {}),
+        reason: test.selectionReason,
+        ...(test.fallbackReason ? { fallbackReason: test.fallbackReason } : {}),
+      },
       status: "inconclusive",
       diagnostics: [
         ...test.diagnostics,
@@ -425,4 +446,77 @@ async function evaluateTest(
       ],
     };
   }
+}
+
+export interface InspectOptions {
+  readonly repositoryRoot: string;
+  readonly config: PatchProofConfig;
+  readonly allowDirty: boolean;
+}
+
+export async function inspectRun(options: InspectOptions): Promise<InspectionResult> {
+  const root = options.repositoryRoot;
+  const baseRef = options.config.base ?? (await mergeBase(root, options.config.head ?? "HEAD"));
+  const headRef = options.config.head ?? "HEAD";
+  const [baseSha, headSha, dirty] = await Promise.all([
+    resolveRevision(root, baseRef),
+    resolveRevision(root, headRef),
+    isDirty(root),
+  ]);
+  if (dirty && !options.allowDirty) {
+    throw new Error("The active worktree is dirty. Commit/stash changes or pass --allow-dirty.");
+  }
+  if (!(await isAncestor(root, baseSha, headSha))) {
+    throw new Error("Base is not an ancestor of head. Choose a valid comparison base.");
+  }
+  const selected = await chooseAdapter(root, options.config.adapter, options.config.projectRoot);
+  const context = adapterContext(root, selected.projectRoot, options.config);
+  const diagnostics = await selected.adapter.validate(context);
+  if (diagnostics.some((item) => item.severity === "error")) {
+    throw new Error(diagnostics.map((item) => item.summary).join(" "));
+  }
+  const diff = await computeDiff(root, baseSha, headSha);
+  const tests = await selected.adapter.discoverTests(context, diff);
+  const supportFiles = await selected.adapter.supportFiles(context, diff);
+  const previewContext = worktreeContext(context, root, "head");
+  const [setup, suite] = await Promise.all([
+    selected.adapter.setupPlan(previewContext),
+    selected.adapter.suitePlan(previewContext),
+  ]);
+  const targeted = await Promise.all(
+    tests
+      .filter((test) => test.changeKind !== "deleted")
+      .map(async (test) => ({
+        testId: test.id,
+        command: (await selected.adapter.targetedTestPlan(test, previewContext)).display,
+      })),
+  );
+  const privacy = { repositoryRoot: root };
+  return {
+    schemaVersion: 1,
+    tool: { name: TOOL_NAME, version: TOOL_VERSION },
+    repository: {
+      root: "<repository>",
+      projectRoot: selected.projectRoot,
+      baseSha,
+      headSha,
+      dirtyOverride: dirty && options.allowDirty,
+    },
+    adapter: selected.adapter.name,
+    tests,
+    supportFiles,
+    commands: {
+      setup: setup ? redactText(setup.display, privacy) : "none",
+      targeted: targeted.map((item) => ({
+        ...item,
+        command: redactText(item.command, privacy),
+      })),
+      suite: redactText(suite.display, privacy),
+    },
+    diagnostics,
+    limitations: [
+      "Inspection identifies changed tests; it does not infer the production bug or execute repository code.",
+      "Dynamic test definitions may require visible file-level fallback.",
+    ],
+  };
 }

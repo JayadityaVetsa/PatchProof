@@ -73,28 +73,32 @@ function literalName(node: any): string | null {
   return null;
 }
 
-function testCases(source: string): Array<{ name: string; line: number }> {
+function callRoot(node: any): string {
+  if (!node) return "";
+  if (node.type === "Identifier") return node.name;
+  if (node.type === "MemberExpression") return callRoot(node.object);
+  if (node.type === "CallExpression") return callRoot(node.callee);
+  return "";
+}
+
+function testCases(source: string): Array<{ name: string; line: number; endLine: number }> {
   const ast = parse(source, {
     sourceType: "unambiguous",
     plugins: ["typescript", "jsx", "decorators-legacy"],
     errorRecovery: true,
   });
-  const found: Array<{ name: string; line: number }> = [];
+  const found: Array<{ name: string; line: number; endLine: number }> = [];
   const visit = (node: any, parents: string[]) => {
     if (!node || typeof node !== "object") return;
     if (node.type === "CallExpression") {
-      let call = "";
-      if (node.callee?.type === "Identifier") call = node.callee.name;
-      else if (
-        node.callee?.type === "MemberExpression" &&
-        node.callee.object?.type === "Identifier"
-      ) {
-        call = node.callee.object.name;
-      }
+      const call = callRoot(node.callee);
       if (["test", "it"].includes(call)) {
         const name = literalName(node.arguments?.[0]);
         const line = node.loc?.start?.line;
-        if (name && line) found.push({ name: [...parents, name].join(" > "), line });
+        const endLine = node.loc?.end?.line;
+        if (name && line && endLine) {
+          found.push({ name: [...parents, name].join(" > "), line, endLine });
+        }
       }
       if (["describe", "suite"].includes(call)) {
         const name = literalName(node.arguments?.[0]);
@@ -224,6 +228,8 @@ export class JavaScriptAdapter implements PatchProofAdapter {
           displayName: projectPath,
           changeKind: "deleted",
           granularity: "file",
+          changedRanges: entry.changedRanges,
+          selectionReason: "The test file was deleted and cannot be evaluated.",
           diagnostics: [],
         });
         continue;
@@ -231,7 +237,9 @@ export class JavaScriptAdapter implements PatchProofAdapter {
       try {
         const source = await readFile(resolve(context.repositoryRoot, entry.path), "utf8");
         const cases = testCases(source).filter(
-          (item) => entry.status === "added" || entry.addedLines.includes(item.line),
+          (item) =>
+            entry.status === "added" ||
+            entry.addedLines.some((line) => line >= item.line && line <= item.endLine),
         );
         if (cases.length) {
           tests.push(
@@ -242,6 +250,12 @@ export class JavaScriptAdapter implements PatchProofAdapter {
               changeKind: entry.status === "added" ? ("added" as const) : ("modified" as const),
               granularity: "case" as const,
               line: item.line,
+              sourceRange: { startLine: item.line, endLine: item.endLine },
+              changedRanges: entry.changedRanges,
+              selectionReason:
+                entry.status === "added"
+                  ? "The test was added in the head revision."
+                  : "Changed lines overlap the test's source span.",
               diagnostics: [],
             })),
           );
@@ -252,6 +266,9 @@ export class JavaScriptAdapter implements PatchProofAdapter {
             displayName: projectPath,
             changeKind: entry.status === "added" ? "added" : "modified",
             granularity: "file",
+            changedRanges: entry.changedRanges,
+            selectionReason: "The changed test file could not be targeted reliably by case.",
+            fallbackReason: "No statically targetable changed test declaration was found.",
             diagnostics: [
               {
                 code: "PP_DISCOVERY_FILE_FALLBACK",
@@ -268,6 +285,9 @@ export class JavaScriptAdapter implements PatchProofAdapter {
           displayName: projectPath,
           changeKind: entry.status === "added" ? "added" : "modified",
           granularity: "file",
+          changedRanges: entry.changedRanges,
+          selectionReason: "The changed test file could not be parsed reliably.",
+          fallbackReason: String(error),
           diagnostics: [
             {
               code: "PP_DISCOVERY_FILE_FALLBACK",

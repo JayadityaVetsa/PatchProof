@@ -1,4 +1,4 @@
-import type { PatchProofReport, TestStatus } from "@patchproof/adapter-api";
+import type { InspectionResult, PatchProofReport, TestStatus } from "@patchproof/adapter-api";
 
 function counts(report: PatchProofReport): Record<TestStatus, number> {
   return {
@@ -26,8 +26,11 @@ export function renderText(report: PatchProofReport, debug = false): string {
   ];
   for (const test of report.tests) {
     lines.push(`${test.status.toUpperCase().padEnd(14)} ${test.id}`);
-    for (const diagnostic of test.diagnostics)
+    lines.push(`  selected: ${test.selection.reason}`);
+    if (test.selection.fallbackReason) lines.push(`  fallback: ${test.selection.fallbackReason}`);
+    for (const diagnostic of test.diagnostics) {
       lines.push(`  ${diagnostic.code}: ${diagnostic.summary}`);
+    }
     if (debug) {
       if (test.base) lines.push(`  base: ${test.base.command.display} (${test.base.outcome})`);
       if (test.head) lines.push(`  head: ${test.head.command.display} (${test.head.outcome})`);
@@ -43,7 +46,7 @@ export function renderText(report: PatchProofReport, debug = false): string {
   }
   lines.push("", ...report.limitations.map((item) => `Limitation: ${item}`));
   lines.push(
-    "Reproduce with the same --base and --head revisions; add --debug to retain evidence.",
+    "Reproduce with the same --base and --head revisions; use `patchproof inspect` to review selection first.",
   );
   return `${lines.join("\n")}\n`;
 }
@@ -58,12 +61,12 @@ export function renderMarkdown(report: PatchProofReport): string {
     `- Adapter: \`${report.execution.adapter}\``,
     `- Suite: **${report.suite.status}**`,
     "",
-    "| Status | Test | Base | Head |",
-    "|---|---|---|---|",
+    "| Status | Test | Selection | Base | Head |",
+    "|---|---|---|---|---|",
   ];
   for (const test of report.tests) {
     lines.push(
-      `| ${test.status} | \`${test.id}\` | ${test.base?.outcome ?? "not run"} | ${test.head?.outcome ?? "not run"} |`,
+      `| ${test.status} | \`${test.id}\` | ${test.selection.reason} | ${test.base?.outcome ?? "not run"} | ${test.head?.outcome ?? "not run"} |`,
     );
   }
   lines.push(
@@ -85,4 +88,71 @@ export function renderReport(
   if (format === "json") return renderJson(report);
   if (format === "markdown") return renderMarkdown(report);
   return renderText(report, debug);
+}
+
+export function renderInspection(
+  inspection: InspectionResult,
+  format: "text" | "markdown" | "json",
+): string {
+  if (format === "json") return `${JSON.stringify(inspection, null, 2)}\n`;
+  const markdown = format === "markdown";
+  const lines = markdown
+    ? [
+        "# PatchProof inspection",
+        "",
+        `- Base: \`${inspection.repository.baseSha}\``,
+        `- Head: \`${inspection.repository.headSha}\``,
+        `- Adapter: \`${inspection.adapter}\``,
+        "",
+        "## Selected tests",
+        "",
+      ]
+    : [
+        `PatchProof ${inspection.tool.version} inspection`,
+        `Base: ${inspection.repository.baseSha}`,
+        `Head: ${inspection.repository.headSha}`,
+        `Adapter: ${inspection.adapter}`,
+        "",
+        "Selected tests:",
+      ];
+  if (!inspection.tests.length) lines.push(markdown ? "- None" : "  None");
+  for (const test of inspection.tests) {
+    const span = test.sourceRange
+      ? ` lines ${test.sourceRange.startLine}-${test.sourceRange.endLine}`
+      : "";
+    lines.push(
+      markdown
+        ? `- \`${test.id}\` (${test.granularity}${span})`
+        : `  ${test.id} (${test.granularity}${span})`,
+    );
+    lines.push(markdown ? `  - ${test.selectionReason}` : `    ${test.selectionReason}`);
+    if (test.fallbackReason) {
+      lines.push(
+        markdown ? `  - Fallback: ${test.fallbackReason}` : `    Fallback: ${test.fallbackReason}`,
+      );
+    }
+  }
+  lines.push("", markdown ? "## Commands" : "Commands:");
+  lines.push(
+    markdown
+      ? `- Setup: \`${inspection.commands.setup}\``
+      : `  Setup: ${inspection.commands.setup}`,
+  );
+  for (const target of inspection.commands.targeted) {
+    lines.push(
+      markdown
+        ? `- \`${target.testId}\`: \`${target.command}\``
+        : `  ${target.testId}: ${target.command}`,
+    );
+  }
+  lines.push(
+    markdown
+      ? `- Suite: \`${inspection.commands.suite}\``
+      : `  Suite: ${inspection.commands.suite}`,
+  );
+  lines.push(
+    "",
+    ...inspection.limitations.map((item) => (markdown ? `- ${item}` : `Limitation: ${item}`)),
+  );
+  return `${lines.join("\n")}\n`;
 }

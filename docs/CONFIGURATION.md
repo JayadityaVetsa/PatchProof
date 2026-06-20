@@ -2,7 +2,7 @@
 
 PatchProof will read `.patchproof.yml` from the repository root unless `--config` is supplied.
 
-## Proposed v1 shape
+## Version 1 shape
 
 ```yaml
 version: 1
@@ -72,6 +72,8 @@ Security-sensitive defaults are not weakened by ambiguous detection.
 - `{worktree}` — managed worktree root, when needed.
 
 Values are passed safely as arguments where possible. PatchProof must not substitute untrusted values into shell source without robust platform-aware handling.
+
+Argument arrays are recommended. String commands are trusted shell configuration and are displayed before local execution consent.
 
 ## Changed-test detection
 

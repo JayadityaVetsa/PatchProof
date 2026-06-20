@@ -23,6 +23,8 @@ inputs:
     required: false
     default: non-proven
 outputs:
+  version:
+    description: PatchProof version used by this run
   status:
     description: Canonical aggregate status
   report-path:

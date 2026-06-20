@@ -12,6 +12,7 @@ This directory contains the detailed public specifications for PatchProof.
 - `COMPATIBILITY.md` — supported runtimes, frameworks, and platforms.
 - `TROUBLESHOOTING.md` — common diagnostics and remediation.
 - `DEMO.md` — reproducible build and proof demonstration.
+- `RELEASE_CHECKLIST.md` — security and publication gates for the public alpha.
 - `decisions/` — accepted Architecture Decision Records.
 
 Root-level documents describe product direction, architecture, execution, testing, and governance.

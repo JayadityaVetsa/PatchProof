@@ -1,7 +1,7 @@
 {
   "name": "patchproof-workspace",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "packageManager": "pnpm@10.12.1",
   "engines": {
     "node": ">=22"
@@ -16,8 +16,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:docs": "node scripts/check-docs.mjs",
-    "check": "corepack pnpm typecheck && corepack pnpm lint && corepack pnpm format && corepack pnpm test && corepack pnpm check:docs && corepack pnpm build",
-    "pack:cli": "corepack pnpm --filter patchproof pack --pack-destination artifacts",
+    "check:version": "node scripts/check-version.mjs",
+    "version:sync": "node scripts/sync-version.mjs",
+    "check": "corepack pnpm check:version && corepack pnpm typecheck && corepack pnpm lint && corepack pnpm format && corepack pnpm test && corepack pnpm check:docs && corepack pnpm build",
+    "pack:cli": "corepack pnpm --filter @jayadityavetsa/patchproof pack --pack-destination artifacts",
+    "acceptance:package": "node scripts/package-acceptance.mjs",
+    "release:verify": "node scripts/release-verify.mjs",
     "bundle:action": "corepack pnpm --filter @patchproof/github-action build"
   },
   "devDependencies": {

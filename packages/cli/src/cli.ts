@@ -3,9 +3,16 @@ import { writeFile } from "node:fs/promises";
 import process from "node:process";
 import { createInterface } from "node:readline/promises";
 import { Command, InvalidArgumentError } from "commander";
-import { exitCodeFor, loadConfig, prepareRun, type ConfigOverrides } from "@patchproof/core";
+import {
+  exitCodeFor,
+  inspectRun,
+  loadConfig,
+  prepareRun,
+  TOOL_VERSION,
+  type ConfigOverrides,
+} from "@patchproof/core";
 import { findRepositoryRoot } from "@patchproof/git";
-import { renderReport } from "@patchproof/reporters";
+import { renderInspection, renderReport } from "@patchproof/reporters";
 
 function duration(value: string): number {
   const match = /^(\d+)(ms|s|m)?$/.exec(value);
@@ -45,7 +52,57 @@ async function confirmExecution(
 const program = new Command()
   .name("patchproof")
   .description("Prove that changed regression tests distinguish head from base.")
-  .version("0.1.0");
+  .version(TOOL_VERSION);
+
+program
+  .command("inspect")
+  .description("Show selected changed tests without executing repository code.")
+  .option("--base <ref>", "base Git revision")
+  .option("--head <ref>", "head Git revision")
+  .option("--config <path>", "configuration file")
+  .option("--adapter <name>", "javascript or python")
+  .option("--project-root <path>", "project root inside the repository")
+  .option("--format <format>", "text, markdown, or json", "text")
+  .option("--output <path>", "write inspection to a file")
+  .option("--allow-dirty", "inspect committed revisions despite active changes")
+  .action(async (raw: Record<string, unknown>) => {
+    try {
+      const repositoryRoot = await findRepositoryRoot(process.cwd());
+      const adapter =
+        raw.adapter === undefined
+          ? undefined
+          : raw.adapter === "javascript" || raw.adapter === "python"
+            ? raw.adapter
+            : (() => {
+                throw new Error("--adapter must be javascript or python.");
+              })();
+      const format =
+        raw.format === "text" || raw.format === "markdown" || raw.format === "json"
+          ? raw.format
+          : (() => {
+              throw new Error("--format must be text, markdown, or json.");
+            })();
+      const { config } = await loadConfig(repositoryRoot, raw.config as string | undefined, {
+        base: raw.base as string | undefined,
+        head: raw.head as string | undefined,
+        adapter,
+        projectRoot: raw.projectRoot as string | undefined,
+      });
+      const inspection = await inspectRun({
+        repositoryRoot,
+        config,
+        allowDirty: Boolean(raw.allowDirty),
+      });
+      const output = renderInspection(inspection, format);
+      if (raw.output) await writeFile(String(raw.output), output, "utf8");
+      else process.stdout.write(output);
+    } catch (error) {
+      process.stderr.write(
+        `PatchProof error: ${error instanceof Error ? error.message : String(error)}\n`,
+      );
+      process.exitCode = 2;
+    }
+  });
 
 program
   .command("check")
