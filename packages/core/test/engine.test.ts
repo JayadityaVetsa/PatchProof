@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { repositoryPattern } from "../src/engine.js";
 import { inspectRun, prepareRun, type PatchProofConfig } from "../src/index.js";
 
 const exec = promisify(execFile);
@@ -15,6 +16,16 @@ async function commit(root: string, message: string): Promise<string> {
 }
 
 describe("proof orchestration", () => {
+  it("qualifies nested-project test and support patterns", () => {
+    expect(repositoryPattern("packages/app", "tests/**/*.test.ts")).toBe(
+      "packages/app/tests/**/*.test.ts",
+    );
+    expect(repositoryPattern("packages/app", "packages/app/tests/**")).toBe(
+      "packages/app/tests/**",
+    );
+    expect(repositoryPattern(".", "tests/**")).toBe("tests/**");
+  });
+
   it("proves an added regression test against a real Git history", async () => {
     const root = await mkdtemp(join(tmpdir(), "patchproof-engine-"));
     await exec("git", ["init", "-b", "main"], { cwd: root });

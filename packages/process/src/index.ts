@@ -1,6 +1,6 @@
-import { spawn } from "node:child_process";
 import process from "node:process";
 import type { CommandSpec, RawProcessResult } from "@patchproof/adapter-api";
+import spawn from "cross-spawn";
 
 export interface RunCommandOptions {
   readonly cwd: string;
@@ -88,10 +88,10 @@ export async function runCommand(
       if (chunk.length > remaining) truncated = true;
       return Buffer.concat([current, chunk.subarray(0, remaining)]);
     };
-    child.stdout.on("data", (chunk: Buffer) => {
+    child.stdout!.on("data", (chunk: Buffer) => {
       stdout = append(stdout, chunk);
     });
-    child.stderr.on("data", (chunk: Buffer) => {
+    child.stderr!.on("data", (chunk: Buffer) => {
       stderr = append(stderr, chunk);
     });
 
