@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -14,6 +14,8 @@ const runExecutable = (file, args, options) =>
     ? exec(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", "call", file, ...args], options)
     : exec(file, args, options);
 const root = resolve(import.meta.dirname, "..");
+const { version: releaseVersion } = JSON.parse(await readFile(join(root, "version.json"), "utf8"));
+const expectedTarball = `jayadityavetsa-patchproof-${releaseVersion}.tgz`;
 const artifacts = join(root, "artifacts");
 await mkdir(artifacts, { recursive: true });
 for (const name of await readdir(artifacts)) {
@@ -22,7 +24,7 @@ for (const name of await readdir(artifacts)) {
 await runTool("corepack", ["pnpm", "build"], { cwd: root, windowsHide: true });
 await runTool("corepack", ["pnpm", "pack:cli"], { cwd: root, windowsHide: true });
 const tarballName = (await readdir(artifacts))
-  .filter((name) => name === "jayadityavetsa-patchproof-0.1.0-alpha.1.tgz")
+  .filter((name) => name === expectedTarball)
   .sort()
   .at(-1);
 if (!tarballName) throw new Error("No CLI tarball was produced.");
@@ -47,12 +49,12 @@ await runTool(
 );
 const executable =
   process.platform === "win32" ? join(prefix, "patchproof.cmd") : join(prefix, "bin", "patchproof");
-const { stdout: version } = await runExecutable(executable, ["--version"], {
+const { stdout: versionOutput } = await runExecutable(executable, ["--version"], {
   cwd: installRoot,
   windowsHide: true,
 });
-if (version.trim() !== "0.1.0-alpha.1") {
-  throw new Error(`Unexpected installed version: ${version}`);
+if (versionOutput.trim() !== releaseVersion) {
+  throw new Error(`Unexpected installed version: ${versionOutput}`);
 }
 await exec("node", [join(root, "scripts", "acceptance.mjs"), executable], {
   cwd: root,

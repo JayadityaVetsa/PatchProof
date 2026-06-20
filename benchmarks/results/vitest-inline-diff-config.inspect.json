@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "vitest-inline-diff-config",
+  "repository": "https://github.com/vitest-dev/vitest.git",
+  "base": "3d421d4ec01b1e48d18d88ab36d41294a7523f8f",
+  "head": "5b81a63ff6f6cedbea3a9ef6d8b2f3e9d0465b6e",
+  "title": "Strip non-serializable functions from inline diff config",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "test/e2e/test/reporters/custom-diff-config.test.ts::inline diff config object with color functions works in %s pool",
+      "file": "test/e2e/test/reporters/custom-diff-config.test.ts",
+      "displayName": "inline diff config object with color functions works in %s pool",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 30,
+      "sourceRange": {
+        "startLine": 30,
+        "endLine": 51
+      },
+      "changedRanges": [
+        {
+          "startLine": 24,
+          "endLine": 51
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 20988,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:08:06.673Z"
+}

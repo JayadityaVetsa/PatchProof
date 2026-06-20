@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jayadityavetsa.github.io/PatchProof/sitemap.xml

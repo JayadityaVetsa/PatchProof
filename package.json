@@ -1,7 +1,7 @@
 {
   "name": "patchproof-workspace",
   "private": true,
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "packageManager": "pnpm@10.12.1",
   "engines": {
     "node": ">=22"
@@ -15,10 +15,13 @@
     "format:write": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:docs": "node scripts/check-docs.mjs",
+    "check:docs": "node scripts/check-docs.mjs && node scripts/check-doc-examples.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "check:version": "node scripts/check-version.mjs",
     "version:sync": "node scripts/sync-version.mjs",
-    "check": "corepack pnpm check:version && corepack pnpm typecheck && corepack pnpm lint && corepack pnpm format && corepack pnpm test && corepack pnpm check:docs && corepack pnpm build",
+    "check": "corepack pnpm check:version && corepack pnpm typecheck && corepack pnpm lint && corepack pnpm format && corepack pnpm test && corepack pnpm check:docs && corepack pnpm docs:build && corepack pnpm build",
     "pack:cli": "corepack pnpm --filter @jayadityavetsa/patchproof pack --pack-destination artifacts",
     "acceptance:package": "node scripts/package-acceptance.mjs",
     "release:verify": "node scripts/release-verify.mjs",
@@ -27,11 +30,22 @@
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@types/node": "^22.15.32",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^9.29.0",
     "prettier": "^3.5.3",
+    "search-insights": "^2.17.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.34.1",
-    "vitest": "^3.2.4"
+    "vitepress": "2.0.0-alpha.17",
+    "vitest": "^4.1.9",
+    "yaml": "^2.9.0",
+    "zod": "^3.25.76"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": ">=0.28.1",
+      "undici@<6.27.0": "6.27.0",
+      "undici@>=7.0.0 <7.28.0": "7.28.0"
+    }
   }
 }

@@ -1,6 +1,6 @@
 # Alpha Compatibility
 
-PatchProof `0.1.0-alpha.1` is tested against:
+PatchProof `0.1.0-alpha.2` is tested against:
 
 | Surface               | Supported versions                 |
 | --------------------- | ---------------------------------- |

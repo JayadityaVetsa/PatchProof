@@ -18,14 +18,14 @@ patchproof inspect --base origin/main --head HEAD
 
 ## Dependency setup failed
 
-PatchProof installs each revision independently. Starting with the next alpha, setup errors include the redacted command, exit code, and bounded pip/npm output. Common causes are an unsupported Python/Node version, unavailable package registry, or a project installation command that differs from `.patchproof.yml`.
+PatchProof installs each revision independently. Setup errors include the redacted command, exit code, and bounded pip/npm output. Common causes are an unsupported Python/Node version, unavailable package registry, or a project installation command that differs from `.patchproof.yml`.
 
 ## npm cannot find the local tarball
 
 Relative paths are resolved from the current terminal directory. Use the absolute quoted path to the tarball:
 
 ```powershell
-npm install --global "C:\path\to\PatchProof\artifacts\jayadityavetsa-patchproof-0.1.0-alpha.1.tgz"
+npm install --global "C:\path\to\PatchProof\artifacts\jayadityavetsa-patchproof-0.1.0-alpha.2.tgz"
 ```
 
 After publication:

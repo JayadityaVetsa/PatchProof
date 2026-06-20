@@ -130,8 +130,10 @@ function packageManager(root: string): Promise<"pnpm" | "npm" | "yarn" | "bun"> 
 function resultOutcome(result: RawProcessResult): NormalizedOutcome {
   if (result.interrupted) return "interrupted";
   if (result.timedOut) return "timeout";
-  if (result.exitCode === 0) return "pass";
   const output = `${result.stdout}\n${result.stderr}`;
+  const structured = structuredOutcome(output);
+  if (structured) return structured;
+  if (result.exitCode === 0) return "pass";
   const assertion = [
     /\bAssertionError\b/i,
     /\bexpected\b[\s\S]{0,120}\b(received|to be|to equal|but got)\b/i,
@@ -150,6 +152,46 @@ function resultOutcome(result: RawProcessResult): NormalizedOutcome {
   return assertion.some((pattern) => pattern.test(output))
     ? "assertion_failure"
     : "infrastructure_failure";
+}
+
+function structuredOutcome(output: string): NormalizedOutcome | null {
+  const candidates = output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("{") && line.endsWith("}"));
+  for (const candidate of candidates.reverse()) {
+    try {
+      const data = JSON.parse(candidate) as {
+        success?: boolean;
+        numFailedTests?: number;
+        numFailedTestSuites?: number;
+        testResults?: readonly {
+          assertionResults?: readonly { status?: string }[];
+          status?: string;
+          message?: string;
+          failureMessage?: string;
+        }[];
+      };
+      if (data.success === true) return "pass";
+      const assertions = data.testResults?.flatMap((suite) => suite.assertionResults ?? []) ?? [];
+      if (
+        assertions.some((assertion) => assertion.status === "failed") ||
+        (data.numFailedTests ?? 0) > 0
+      ) {
+        return "assertion_failure";
+      }
+      if (
+        data.success === false ||
+        (data.numFailedTestSuites ?? 0) > 0 ||
+        data.testResults?.some((suite) => suite.status === "failed")
+      ) {
+        return "infrastructure_failure";
+      }
+    } catch {
+      // Continue with other JSON lines and then conservative text normalization.
+    }
+  }
+  return null;
 }
 
 export class JavaScriptAdapter implements PatchProofAdapter {
@@ -350,6 +392,7 @@ export class JavaScriptAdapter implements PatchProofAdapter {
             ...runner,
             "vitest",
             "run",
+            "--reporter=json",
             projectFile,
             ...(test.granularity === "case" ? ["-t", test.displayName] : []),
           ]
@@ -357,6 +400,7 @@ export class JavaScriptAdapter implements PatchProofAdapter {
             ...runner,
             "jest",
             "--runInBand",
+            "--json",
             projectFile,
             ...(test.granularity === "case" ? ["-t", test.displayName] : []),
           ];
@@ -367,9 +411,14 @@ export class JavaScriptAdapter implements PatchProofAdapter {
     if (context.configuration.suite) {
       return commandFromTemplate(context.configuration.suite, { worktree: context.worktreeRoot });
     }
-    const manager = await packageManager(resolve(context.worktreeRoot, context.projectRoot));
+    const root = resolve(context.worktreeRoot, context.projectRoot);
+    const manager = await packageManager(root);
+    const detected = framework(await packageData(root));
+    const runner = manager === "npm" ? ["npx", "--no-install"] : [manager, "exec"];
     return commandFromTemplate(
-      manager === "npm" ? ["npm", "test", "--", "--runInBand"] : [manager, "test"],
+      detected === "vitest"
+        ? [...runner, "vitest", "run", "--reporter=json"]
+        : [...runner, "jest", "--runInBand", "--json"],
       {},
     );
   }

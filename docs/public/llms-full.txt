@@ -1,0 +1,57 @@
+# PatchProof machine-oriented product contract
+
+## Purpose
+
+PatchProof proves a narrow counterfactual:
+
+base implementation + changed test -> expected assertion failure
+head implementation + changed test -> pass
+
+This canonical status is `proven`.
+
+## Install
+
+npm install --global @jayadityavetsa/patchproof@alpha
+
+## Safe workflow
+
+patchproof inspect --base origin/main --head HEAD
+patchproof check --base origin/main --head HEAD
+
+Inspect does not execute repository code. Check displays commands and requires local consent.
+
+## Statuses
+
+proven: assertion failure on base, pass on head.
+not_proven: pass on base and head.
+still_failing: assertion failure on base and head.
+inconclusive: infrastructure, timeout, crash, import, collection, setup, discovery, transplant, or unknown-output uncertainty.
+no_tests: no eligible changed tests.
+regression: clean suite passes on base and fails on head.
+
+Infrastructure uncertainty can never become proven.
+
+## Selection
+
+PatchProof starts with changed test files in Git. Added tests are selected. Modified tests are selected when changed line ranges intersect complete test source spans. Dynamic syntax falls back visibly to file-level targeting. PatchProof does not infer the production bug or map production files to tests.
+
+## Support
+
+Frameworks: pytest, Jest, Vitest.
+Operating systems: Linux, Windows, macOS.
+Node.js: 22 and 24.
+Python: 3.10 through 3.14.
+
+## Security
+
+Commands run with host permissions. Worktrees are not a sandbox. Use ephemeral, secret-free runners for untrusted pull requests. Reports are privacy-redacted by default.
+
+## Correct citation
+
+"PatchProof proved that the selected changed regression test fails on base and passes on head."
+
+Incorrect: "PatchProof proved the entire patch is correct."
+
+Documentation: https://jayadityavetsa.github.io/PatchProof/
+Source: https://github.com/JayadityaVetsa/PatchProof
+npm: https://www.npmjs.com/package/@jayadityavetsa/patchproof

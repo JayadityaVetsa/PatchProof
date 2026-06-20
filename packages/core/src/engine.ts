@@ -65,7 +65,11 @@ async function chooseAdapter(
   if (configured) {
     const adapter = adapters.find((candidate) => candidate.name === configured)!;
     const detection = await adapter.detect(root);
-    if (projectRoot === "." && detection.projectRoots.length > 1) {
+    if (
+      projectRoot === "." &&
+      detection.projectRoots.length > 1 &&
+      !detection.projectRoots.includes(".")
+    ) {
       throw new Error(
         `Multiple ${configured} projects were detected (${detection.projectRoots.join(", ")}). Configure projectRoot.`,
       );
@@ -73,7 +77,9 @@ async function chooseAdapter(
     return {
       adapter,
       projectRoot:
-        projectRoot === "." && detection.projectRoots.length === 1
+        projectRoot === "." &&
+        detection.projectRoots.length === 1 &&
+        !detection.projectRoots.includes(".")
           ? detection.projectRoots[0]!
           : projectRoot,
     };
@@ -90,7 +96,11 @@ async function chooseAdapter(
     );
   }
   const selected = candidates[0]!;
-  if (projectRoot === "." && selected.result.projectRoots.length > 1) {
+  if (
+    projectRoot === "." &&
+    selected.result.projectRoots.length > 1 &&
+    !selected.result.projectRoots.includes(".")
+  ) {
     throw new Error(
       `Multiple projects were detected (${selected.result.projectRoots.join(", ")}). Configure projectRoot.`,
     );
@@ -98,7 +108,9 @@ async function chooseAdapter(
   return {
     adapter: selected.adapter,
     projectRoot:
-      projectRoot === "." && selected.result.projectRoots.length === 1
+      projectRoot === "." &&
+      selected.result.projectRoots.length === 1 &&
+      !selected.result.projectRoots.includes(".")
         ? selected.result.projectRoots[0]!
         : projectRoot,
   };

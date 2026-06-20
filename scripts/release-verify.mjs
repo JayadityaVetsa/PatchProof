@@ -11,6 +11,8 @@ const runTool = (name, args, options) =>
     ? exec(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", `${name}.cmd`, ...args], options)
     : exec(name, args, options);
 const root = resolve(import.meta.dirname, "..");
+const release = JSON.parse(await readFile(join(root, "version.json"), "utf8"));
+const expectedTarball = `jayadityavetsa-patchproof-${release.version}.tgz`;
 const artifacts = join(root, "artifacts");
 await mkdir(artifacts, { recursive: true });
 await runTool("corepack", ["pnpm", "check"], { cwd: root, windowsHide: true });
@@ -19,7 +21,7 @@ for (const name of await readdir(artifacts)) {
 }
 await runTool("corepack", ["pnpm", "pack:cli"], { cwd: root, windowsHide: true });
 const tarballName = (await readdir(artifacts))
-  .filter((name) => name === "jayadityavetsa-patchproof-0.1.0-alpha.1.tgz")
+  .filter((name) => name === expectedTarball)
   .sort()
   .at(-1);
 if (!tarballName) throw new Error("No tarball found.");
@@ -44,7 +46,7 @@ const { stdout: packageJsonText } = await exec("tar", ["-xOf", tarball, "package
   maxBuffer: 5 * 1024 * 1024,
 });
 const metadata = JSON.parse(packageJsonText);
-if (metadata.name !== "@jayadityavetsa/patchproof" || metadata.version !== "0.1.0-alpha.1") {
+if (metadata.name !== "@jayadityavetsa/patchproof" || metadata.version !== release.version) {
   throw new Error("Tarball package identity does not match the alpha release.");
 }
 for (const file of files) {

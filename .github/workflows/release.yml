@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       publish:
@@ -33,12 +36,25 @@ jobs:
       - name: Verify release identity
         shell: bash
         run: |
-          test "${GITHUB_REF}" = "refs/tags/v0.1.0-alpha.1"
-          test "$(node -p "require('./version.json').version")" = "0.1.0-alpha.1"
-          test "$(node -p "require('./packages/cli/package.json').version")" = "0.1.0-alpha.1"
+          version="$(node -p "require('./version.json').version")"
+          test "${GITHUB_REF}" = "refs/tags/v${version}"
+          test "$(node -p "require('./packages/cli/package.json').version")" = "${version}"
       - name: Publish
-        if: ${{ inputs.publish }}
-        run: pnpm --filter @jayadityavetsa/patchproof publish --provenance --access public --tag alpha
+        if: ${{ github.event_name == 'push' || inputs.publish }}
+        working-directory: packages/cli
+        run: npm publish --provenance --access public --tag alpha
+      - name: Verify public package
+        if: ${{ github.event_name == 'push' || inputs.publish }}
+        shell: bash
+        run: |
+          version="$(node -p "require('./version.json').version")"
+          for attempt in 1 2 3 4 5; do
+            published="$(npm view @jayadityavetsa/patchproof@alpha version 2>/dev/null || true)"
+            test "${published}" = "${version}" && break
+            sleep 10
+          done
+          test "${published}" = "${version}"
+          test "$(npx --yes @jayadityavetsa/patchproof@${version} --version)" = "${version}"
       - name: Upload release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

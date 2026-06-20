@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "pytest-initial-conftest",
+  "repository": "https://github.com/pytest-dev/pytest.git",
+  "base": "070e35b1e3867803a61fc607c051c731ac5dc180",
+  "head": "b375b79ec913630af83ceff58944347408a6534a",
+  "title": "Fix initial conftest handling in a test subdirectory",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "testing/test_conftest.py::test_conftests_in_invocation_dir_tests_is_initial",
+      "file": "testing/test_conftest.py",
+      "displayName": "test_conftests_in_invocation_dir_tests_is_initial",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 443,
+      "sourceRange": {
+        "startLine": 443,
+        "endLine": 462
+      },
+      "changedRanges": [
+        {
+          "startLine": 443,
+          "endLine": 464
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 13895,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:47.419Z"
+}

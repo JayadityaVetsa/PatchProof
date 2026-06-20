@@ -104,4 +104,43 @@ describe("JavaScript adapter", () => {
       ),
     ).toBe("infrastructure_failure");
   });
+
+  it("uses structured Jest and Vitest output conservatively", () => {
+    const adapter = new JavaScriptAdapter();
+    expect(
+      adapter.normalize(
+        {
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify({
+            success: false,
+            numFailedTests: 1,
+            testResults: [{ assertionResults: [{ status: "failed" }] }],
+          }),
+          stderr: "",
+          timedOut: false,
+          interrupted: false,
+        },
+        "test",
+      ),
+    ).toBe("assertion_failure");
+    expect(
+      adapter.normalize(
+        {
+          exitCode: 1,
+          signal: null,
+          stdout: JSON.stringify({
+            success: false,
+            numFailedTests: 0,
+            numFailedTestSuites: 1,
+            testResults: [{ status: "failed", message: "Unable to load config" }],
+          }),
+          stderr: "",
+          timedOut: false,
+          interrupted: false,
+        },
+        "test",
+      ),
+    ).toBe("infrastructure_failure");
+  });
 });

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "pydantic-generator-max-length",
+  "repository": "https://github.com/pydantic/pydantic.git",
+  "base": "ab33bb7bbc62ad44575bde189d6d40a83fcbaab2",
+  "head": "adf330b9eee0e8441b091872085e97e5bd29cc6b",
+  "title": "Fix max_length validation during lazy iteration",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "tests/test_types.py::test_iterable_any",
+      "file": "tests/test_types.py",
+      "displayName": "test_iterable_any",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 2275,
+      "sourceRange": {
+        "startLine": 2275,
+        "endLine": 2316
+      },
+      "changedRanges": [
+        {
+          "startLine": 2302,
+          "endLine": 2317
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 12046,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:33.242Z"
+}

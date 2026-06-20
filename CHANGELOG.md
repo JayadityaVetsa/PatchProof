@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.2] - 2026-06-20
+
+- Added the searchable GitHub Pages documentation site, public schema, `llms.txt`, citation metadata, and AI-agent guidance.
+- Added a ten-repository historical benchmark manifest and reproducible harness.
+- Added structured Jest/Vitest output normalization and clearer identical-revision/setup failures.
+- Upgraded GitHub Action and test dependencies and generalized OIDC release automation.
+
 All notable changes will be documented here.
 
 The project intends to follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
