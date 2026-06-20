@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "date-fns-chinese-month",
+  "repository": "https://github.com/date-fns/date-fns.git",
+  "base": "39d1e14200cead9e4be5df88695b5e82082875ed",
+  "head": "b9c5865edb7610c59e6b3694ed1e1691f4807688",
+  "title": "Fix Chinese locale month parsing",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "src/locale/zh-CN/test.ts::Chinese locales > parses October with localized month tokens",
+      "file": "pkgs/core/src/locale/zh-CN/test.ts",
+      "displayName": "Chinese locales > parses October with localized month tokens",
+      "changeKind": "added",
+      "granularity": "case",
+      "line": 9,
+      "sourceRange": {
+        "startLine": 9,
+        "endLine": 25
+      },
+      "changedRanges": [
+        {
+          "startLine": 1,
+          "endLine": 44
+        }
+      ],
+      "selectionReason": "The test was added in the head revision.",
+      "diagnostics": []
+    },
+    {
+      "id": "src/locale/zh-CN/test.ts::Chinese locales > parses November and December as distinct months",
+      "file": "pkgs/core/src/locale/zh-CN/test.ts",
+      "displayName": "Chinese locales > parses November and December as distinct months",
+      "changeKind": "added",
+      "granularity": "case",
+      "line": 27,
+      "sourceRange": {
+        "startLine": 27,
+        "endLine": 43
+      },
+      "changedRanges": [
+        {
+          "startLine": 1,
+          "endLine": 44
+        }
+      ],
+      "selectionReason": "The test was added in the head revision.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 14852,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:07:22.678Z"
+}

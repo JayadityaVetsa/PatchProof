@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "click-fish-completion",
+  "repository": "https://github.com/pallets/click.git",
+  "base": "5b1aba82745cbde04c75e0bab995e5ddf0804196",
+  "head": "b7e5fd4cc7de70280eccd39f2bb956df617e5519",
+  "title": "Fix fish completion and multiline help",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "tests/test_shell_completion.py::test_full_complete",
+      "file": "tests/test_shell_completion.py",
+      "displayName": "test_full_complete",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 355,
+      "sourceRange": {
+        "startLine": 355,
+        "endLine": 372
+      },
+      "changedRanges": [
+        {
+          "startLine": 362,
+          "endLine": 364
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 9522,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:11.666Z"
+}

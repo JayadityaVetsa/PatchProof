@@ -25,6 +25,11 @@ describe("proof orchestration", () => {
       join(root, "package.json"),
       JSON.stringify({ type: "module", devDependencies: { vitest: "^3.0.0" } }),
     );
+    await mkdir(join(root, "examples", "nested"), { recursive: true });
+    await writeFile(
+      join(root, "examples", "nested", "package.json"),
+      JSON.stringify({ devDependencies: { jest: "^30.0.0" } }),
+    );
     await writeFile(join(root, "implementation.txt"), "buggy\n");
     await writeFile(
       join(root, "run-test.mjs"),

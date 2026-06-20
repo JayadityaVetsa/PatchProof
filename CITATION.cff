@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If PatchProof supports your research or engineering work, cite the software repository."
+title: "PatchProof"
+type: software
+authors:
+  - family-names: "Vetsa"
+    given-names: "Jayaditya"
+repository-code: "https://github.com/JayadityaVetsa/PatchProof"
+url: "https://jayadityavetsa.github.io/PatchProof/"
+license: "Apache-2.0"
+version: "0.1.0-alpha.2"
+date-released: "2026-06-20"

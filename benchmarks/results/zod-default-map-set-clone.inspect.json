@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "zod-default-map-set-clone",
+  "repository": "https://github.com/colinhacks/zod.git",
+  "base": "b6b1288277e6ca87dab0ad1c7251b92612b7445c",
+  "head": "34f601590351e5d3a57fe20c001155940ba65324",
+  "title": "Clone Map and Set defaults instead of sharing state",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "src/v4/classic/tests/default.test.ts::defaulted Map schema returns shallow clone",
+      "file": "packages/zod/src/v4/classic/tests/default.test.ts",
+      "displayName": "defaulted Map schema returns shallow clone",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 335,
+      "sourceRange": {
+        "startLine": 335,
+        "endLine": 341
+      },
+      "changedRanges": [
+        {
+          "startLine": 335,
+          "endLine": 378
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    },
+    {
+      "id": "src/v4/classic/tests/default.test.ts::defaulted Set schema returns shallow clone",
+      "file": "packages/zod/src/v4/classic/tests/default.test.ts",
+      "displayName": "defaulted Set schema returns shallow clone",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 343,
+      "sourceRange": {
+        "startLine": 343,
+        "endLine": 349
+      },
+      "changedRanges": [
+        {
+          "startLine": 335,
+          "endLine": 378
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    },
+    {
+      "id": "src/v4/classic/tests/default.test.ts::mutations on defaulted Map do not affect subsequent parses",
+      "file": "packages/zod/src/v4/classic/tests/default.test.ts",
+      "displayName": "mutations on defaulted Map do not affect subsequent parses",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 351,
+      "sourceRange": {
+        "startLine": 351,
+        "endLine": 363
+      },
+      "changedRanges": [
+        {
+          "startLine": 335,
+          "endLine": 378
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    },
+    {
+      "id": "src/v4/classic/tests/default.test.ts::mutations on defaulted Set do not affect subsequent parses",
+      "file": "packages/zod/src/v4/classic/tests/default.test.ts",
+      "displayName": "mutations on defaulted Set do not affect subsequent parses",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 365,
+      "sourceRange": {
+        "startLine": 365,
+        "endLine": 377
+      },
+      "changedRanges": [
+        {
+          "startLine": 335,
+          "endLine": 378
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 9188,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:07:07.591Z"
+}

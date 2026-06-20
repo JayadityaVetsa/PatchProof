@@ -1,13 +1,18 @@
 # @jayadityavetsa/patchproof
 
-PatchProof checks whether a changed regression test fails against a base revision and passes against the proposed revision.
+Prove that a changed pytest, Jest, or Vitest regression test fails before the fix and passes after it.
 
 ```console
-npm install --global @jayadityavetsa/patchproof
-patchproof inspect --base origin/main
-patchproof check --base origin/main
+npm install --global @jayadityavetsa/patchproof@alpha
+patchproof inspect --base origin/main --head HEAD
+patchproof check --base origin/main --head HEAD
 ```
 
-PatchProof runs repository setup and test commands with your user permissions. Review the displayed execution plan before approving local runs.
+PatchProof is deterministic and conservative: setup failures, timeouts, crashes, collection failures, and unknown output become `inconclusive`, never `proven`.
 
-Full documentation, GitHub Action usage, status meanings, compatibility, and security guidance are available at [github.com/JayadityaVetsa/PatchProof](https://github.com/JayadityaVetsa/PatchProof).
+- [Documentation](https://jayadityavetsa.github.io/PatchProof/)
+- [Source and GitHub Action](https://github.com/JayadityaVetsa/PatchProof)
+- [Security model](https://jayadityavetsa.github.io/PatchProof/security/)
+- [Public benchmarks](https://jayadityavetsa.github.io/PatchProof/benchmarks/)
+
+Apache-2.0. No telemetry, hosted account, required AI service, or postinstall script.

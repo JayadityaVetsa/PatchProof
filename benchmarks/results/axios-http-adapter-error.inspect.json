@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "axios-http-adapter-error",
+  "repository": "https://github.com/axios/axios.git",
+  "base": "1792eda11aff8fe0f8c8a6e5ae6ff305740a6460",
+  "head": "b32880af48017457a1203ab2e63720902d3b71b3",
+  "title": "Fix incorrect error handling in the HTTP adapter",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "tests/unit/adapters/http.test.js::supports http with nodejs > should display error while parsing params",
+      "file": "tests/unit/adapters/http.test.js",
+      "displayName": "supports http with nodejs > should display error while parsing params",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 1894,
+      "sourceRange": {
+        "startLine": 1894,
+        "endLine": 1915
+      },
+      "changedRanges": [
+        {
+          "startLine": 1907,
+          "endLine": 1908
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 10372,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:58.125Z"
+}

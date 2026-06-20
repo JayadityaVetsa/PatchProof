@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "httpx-request-timeout",
+  "repository": "https://github.com/encode/httpx.git",
+  "base": "df5345140e09ac6c2de0d9589bcd6f3e31c6aa3f",
+  "head": "6d852d319acd5d97caf14037dff15ede04b37542",
+  "title": "Fix client.send timeout on a new Request",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "tests/test_timeouts.py::test_async_client_new_request_send_timeout",
+      "file": "tests/test_timeouts.py",
+      "displayName": "test_async_client_new_request_send_timeout",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 47,
+      "sourceRange": {
+        "startLine": 47,
+        "endLine": 55
+      },
+      "changedRanges": [
+        {
+          "startLine": 45,
+          "endLine": 55
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 9250,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:21.059Z"
+}

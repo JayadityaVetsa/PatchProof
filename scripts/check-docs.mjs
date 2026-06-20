@@ -26,7 +26,7 @@ await walk(root);
 const failures = [];
 for (const file of markdown) {
   const text = await readFile(file, "utf8");
-  for (const match of text.matchAll(/\[[^\]]+\]\((?!https?:|mailto:|#)([^)#]+)(?:#[^)]+)?\)/g)) {
+  for (const match of text.matchAll(/\[[^\]]+\]\((?!https?:|mailto:|#|\/)([^)#]+)(?:#[^)]+)?\)/g)) {
     const target = resolve(dirname(file), decodeURIComponent(match[1]));
     try {
       await readFile(target);

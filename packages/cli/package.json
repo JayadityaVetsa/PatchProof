@@ -1,10 +1,16 @@
 {
   "name": "@jayadityavetsa/patchproof",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Prove that changed regression tests distinguish a patch from its base revision.",
   "keywords": [
     "testing",
     "regression-test",
+    "regression-testing",
+    "test-before-fix",
+    "test-effectiveness",
+    "counterfactual-testing",
+    "continuous-integration",
+    "developer-tools",
     "git",
     "github-actions",
     "pytest",
@@ -15,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/JayadityaVetsa/PatchProof.git"
   },
-  "homepage": "https://github.com/JayadityaVetsa/PatchProof#readme",
+  "homepage": "https://jayadityavetsa.github.io/PatchProof/",
   "bugs": {
     "url": "https://github.com/JayadityaVetsa/PatchProof/issues"
   },

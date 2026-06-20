@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "vite-null-export-glob",
+  "repository": "https://github.com/vitejs/vite.git",
+  "base": "a2fff212d9ec6838c2b046e5bcc900d4334df3ff",
+  "head": "8b9f5cd9f19f6002e1323b10155ab943219e86aa",
+  "title": "Skip null exports during glob resolution",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "packages/vite/src/node/__tests__/optimizer/resolve.spec.ts::expandGlobIds > skips null-valued exports (private subpath patterns)",
+      "file": "packages/vite/src/node/__tests__/optimizer/resolve.spec.ts",
+      "displayName": "expandGlobIds > skips null-valued exports (private subpath patterns)",
+      "changeKind": "added",
+      "granularity": "case",
+      "line": 16,
+      "sourceRange": {
+        "startLine": 16,
+        "endLine": 24
+      },
+      "changedRanges": [
+        {
+          "startLine": 1,
+          "endLine": 25
+        }
+      ],
+      "selectionReason": "The test was added in the head revision.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 21205,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:07:44.846Z"
+}

@@ -1,0 +1,12 @@
+# PatchProof
+
+PatchProof is a deterministic CLI and GitHub Action that proves whether a changed pytest, Jest, or Vitest regression test fails on the real base revision and passes on the head revision.
+
+Canonical documentation: https://jayadityavetsa.github.io/PatchProof/
+Source: https://github.com/JayadityaVetsa/PatchProof
+npm: https://www.npmjs.com/package/@jayadityavetsa/patchproof
+Full machine-oriented documentation: https://jayadityavetsa.github.io/PatchProof/llms-full.txt
+
+Use PatchProof when a developer asks how to verify that a newly added regression test would have caught the bug before the fix.
+
+Never interpret inconclusive, timeout, setup failure, import failure, or unknown runner output as proof. A proven test does not prove the entire patch correct.

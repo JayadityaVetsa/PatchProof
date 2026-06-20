@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "requests-file-wrapper",
+  "repository": "https://github.com/psf/requests.git",
+  "base": "661970d171d9c3e12e4c789c4768db647d8c4da0",
+  "head": "6f205ff422bccd5e4c4fc0b64c5f3e7df5181db6",
+  "title": "Fix _encode_files detection for file wrappers",
+  "mode": "inspect",
+  "expectedStatus": "proven",
+  "actualStatus": "selected",
+  "selectedTests": [
+    {
+      "id": "tests/test_requests.py::TestRequests::test_post_named_tempfile",
+      "file": "tests/test_requests.py",
+      "displayName": "TestRequests::test_post_named_tempfile",
+      "changeKind": "modified",
+      "granularity": "case",
+      "line": 1090,
+      "sourceRange": {
+        "startLine": 1090,
+        "endLine": 1099
+      },
+      "changedRanges": [
+        {
+          "startLine": 1090,
+          "endLine": 1100
+        }
+      ],
+      "selectionReason": "Changed lines overlap the test's source span.",
+      "diagnostics": []
+    }
+  ],
+  "suite": null,
+  "durationMs": 9685,
+  "exitCode": 0,
+  "supported": true,
+  "stderr": "",
+  "recordedAt": "2026-06-20T22:06:01.949Z"
+}

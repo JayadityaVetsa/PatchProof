@@ -1,0 +1,52 @@
+name: Historical benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Inspect only or execute the complete proof
+        type: choice
+        options: [inspect, check]
+        default: inspect
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - requests-file-wrapper
+          - click-fish-completion
+          - httpx-request-timeout
+          - pydantic-generator-max-length
+          - pytest-initial-conftest
+          - axios-http-adapter-error
+          - zod-default-map-set-clone
+          - date-fns-chinese-month
+          - vite-null-export-glob
+          - vitest-inline-diff-config
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: node scripts/run-benchmark.mjs --case "${{ matrix.case }}" --mode "${{ inputs.mode }}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: benchmark-${{ matrix.case }}-${{ inputs.mode }}
+          path: benchmarks/results/*.json
