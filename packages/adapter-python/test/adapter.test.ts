@@ -16,7 +16,11 @@ describe("Python adapter", () => {
       join(root, "tests", "test_value.py"),
       "def test_boundary():\n    assert 1 == 2\n",
     );
-    const adapter = new PythonAdapter();
+    const adapter = new PythonAdapter({
+      executable: process.execPath,
+      argsPrefix: [],
+      display: process.execPath,
+    });
     expect((await adapter.detect(root)).confidence).toBe("high");
     const tests = await adapter.discoverTests(
       {
@@ -89,7 +93,11 @@ describe("Python adapter", () => {
   });
 
   it("only accepts pytest assertion exits as assertion failure", () => {
-    const adapter = new PythonAdapter();
+    const adapter = new PythonAdapter({
+      executable: process.execPath,
+      argsPrefix: [],
+      display: process.execPath,
+    });
     expect(
       adapter.normalize(
         {
@@ -116,5 +124,73 @@ describe("Python adapter", () => {
         "test",
       ),
     ).toBe("infrastructure_failure");
+  });
+
+  it("runs explicit Python commands inside an isolated worktree environment", async () => {
+    const root = await mkdtemp(join(tmpdir(), "patchproof-python environment with spaces-"));
+    await writeFile(join(root, "pyproject.toml"), "[project]\nname='fixture'\nversion='0.0.0'\n");
+    const adapter = new PythonAdapter({
+      executable: process.execPath,
+      argsPrefix: [],
+      display: process.execPath,
+    });
+    const context = {
+      repositoryRoot: root,
+      worktreeRoot: root,
+      projectRoot: ".",
+      role: "head" as const,
+      configuration: {
+        setup: ["python", "-m", "pip", "install", "-e", ".[dev]"],
+        targetedTest: ["python", "-m", "pytest", "-q", "{test_id}"],
+        suite: ["python", "-m", "pytest", "-q"],
+        include: [],
+        exclude: [],
+        support: [],
+      },
+    };
+
+    const setup = await adapter.setupPlan(context);
+    expect(setup?.display).toContain("create isolated Python environment");
+    expect(setup?.display).toContain("python -m pip install -e .[dev]");
+    const setupMode = setup?.args?.indexOf("argv") ?? -1;
+    const setupCommand = JSON.parse(setup?.args?.[setupMode + 1] ?? "[]") as string[];
+    expect(setupCommand[0]).toBe(
+      join(
+        root,
+        ".patchproof-venv",
+        process.platform === "win32" ? "Scripts" : "bin",
+        process.platform === "win32" ? "python.exe" : "python",
+      ),
+    );
+
+    const targeted = await adapter.targetedTestPlan(
+      {
+        id: "tests/test_value.py::test_value",
+        file: "tests/test_value.py",
+        displayName: "test_value",
+        changeKind: "added",
+        granularity: "case",
+        changedRanges: [{ startLine: 1, endLine: 2 }],
+        selectionReason: "added",
+        diagnostics: [],
+      },
+      context,
+    );
+    expect(targeted.env?.VIRTUAL_ENV).toBe(join(root, ".patchproof-venv"));
+    expect(targeted.env?.TEMP).toBe(join(root, ".patchproof-tmp"));
+    expect(targeted.env?.TMP).toBe(join(root, ".patchproof-tmp"));
+    expect(targeted.env?.TMPDIR).toBe(join(root, ".patchproof-tmp"));
+    expect(targeted.env?.PATH?.split(process.platform === "win32" ? ";" : ":")[0]).toContain(
+      ".patchproof-venv",
+    );
+    expect(targeted.executable).toBe(
+      join(
+        root,
+        ".patchproof-venv",
+        process.platform === "win32" ? "Scripts" : "bin",
+        process.platform === "win32" ? "python.exe" : "python",
+      ),
+    );
+    expect(targeted.display).toBe("python -m pytest -q tests/test_value.py::test_value");
   });
 });

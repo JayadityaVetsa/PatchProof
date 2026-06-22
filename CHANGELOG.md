@@ -11,11 +11,21 @@ All notable changes will be documented here.
 
 The project intends to follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
+## [0.1.0-alpha.3] - 2026-06-21
+
+### Fixed
+
+- Python checks now reject unrelated active/private virtual environments, locate a usable system
+  interpreter, create isolated base/head environments for explicit commands, and expose
+  `PATCHPROOF_PYTHON` for deterministic interpreter selection.
+- Python setup arrays now resolve `python`, `pip`, and `pytest` to the absolute worktree
+  interpreter on Windows instead of relying on child `PATH` resolution.
+- pytest receives a private temporary directory per worktree, preventing stale-user and concurrent
+  runner collisions.
+
 ## [Unreleased]
 
-### Added
-
-- No unreleased changes.
+No unreleased changes.
 
 ## [0.1.0-alpha.1] - 2026-06-19
 

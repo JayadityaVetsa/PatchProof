@@ -14,6 +14,17 @@ patchproof inspect --base origin/main --head HEAD
 
 PatchProof reports the redacted command, exit code, and bounded output. Check interpreter versions, registry access, native build requirements, and `.patchproof.yml`.
 
+PatchProof does not reuse an active virtual environment. It locates a system Python and creates
+`.patchproof-venv` independently for base and head. If the wrong interpreter is selected, set it
+explicitly:
+
+```powershell
+$env:PATCHPROOF_PYTHON = "C:\Users\me\AppData\Local\Programs\Python\Python311\python.exe"
+patchproof check --base origin/main --head HEAD
+```
+
+The selected interpreter must support `venv`. PatchProof does not silently download Python.
+
 ## npm cannot find a local tarball
 
 Relative paths are resolved from the current directory. Prefer the public package:

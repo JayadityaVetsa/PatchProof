@@ -10,6 +10,10 @@ patchproof check --base origin/main --head HEAD
 
 PatchProof is deterministic and conservative: setup failures, timeouts, crashes, collection failures, and unknown output become `inconclusive`, never `proven`.
 
+For pytest projects, PatchProof creates independent base/head virtual environments and does not
+reuse an unrelated active Python environment. Set `PATCHPROOF_PYTHON` when you need a specific
+system interpreter.
+
 - [Documentation](https://jayadityavetsa.github.io/PatchProof/)
 - [Source and GitHub Action](https://github.com/JayadityaVetsa/PatchProof)
 - [Security model](https://jayadityavetsa.github.io/PatchProof/security/)

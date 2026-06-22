@@ -158,8 +158,14 @@ function evidence(
   result: RawProcessResult & { truncated: boolean },
   outcome: NormalizedOutcome,
 ): ProcessEvidence {
+  const publicCommand: CommandSpec = {
+    ...(command.executable ? { executable: command.executable } : {}),
+    ...(command.args ? { args: command.args } : {}),
+    ...(command.shell ? { shell: command.shell } : {}),
+    display: command.display,
+  };
   return {
-    command,
+    command: publicCommand,
     cwdRole: role,
     startedAt,
     durationMs: Math.round(performance.now() - started),
