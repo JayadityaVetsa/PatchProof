@@ -71,7 +71,7 @@ export async function runCommand(
     let settled = false;
     const child = spawn(executable, args, {
       cwd: options.cwd,
-      env: { ...process.env, ...options.env },
+      env: { ...process.env, ...command.env, ...options.env },
       windowsHide: true,
       detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],

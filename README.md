@@ -17,6 +17,9 @@ head implementation + changed test  -> pass
 
 It does not guess the bug, generate a score, or claim the whole patch is correct. It proves one narrower and useful fact: the selected changed test distinguishes the submitted patch from its base revision.
 
+Python projects receive separate base/head virtual environments and private temporary directories.
+PatchProof does not reuse whichever virtual environment happens to be active in your terminal.
+
 ## Five-minute local check
 
 Requires Git and Node.js 22 or 24.

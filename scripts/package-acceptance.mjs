@@ -60,4 +60,8 @@ await exec("node", [join(root, "scripts", "acceptance.mjs"), executable], {
   cwd: root,
   windowsHide: true,
 });
+await exec("node", [join(root, "scripts", "python-acceptance.mjs"), executable], {
+  cwd: root,
+  windowsHide: true,
+});
 console.log(`Package acceptance passed: ${tarball}`);

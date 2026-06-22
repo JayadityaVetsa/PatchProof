@@ -1,6 +1,6 @@
 {
   "name": "@jayadityavetsa/patchproof",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Prove that changed regression tests distinguish a patch from its base revision.",
   "keywords": [
     "testing",

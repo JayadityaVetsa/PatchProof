@@ -31,6 +31,7 @@ export interface CommandSpec {
   readonly args?: readonly string[];
   readonly shell?: string;
   readonly display: string;
+  readonly env?: Readonly<Record<string, string>>;
 }
 
 export interface ProcessEvidence {
