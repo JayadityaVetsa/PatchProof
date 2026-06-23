@@ -1,4 +1,4 @@
-name: PatchProof
+name: PatchProofer
 description: Prove that changed regression tests distinguish a patch from its base revision.
 author: PatchProof contributors
 inputs:
