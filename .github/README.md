@@ -37,7 +37,7 @@ patchproof check --base origin/main --head HEAD
 ## GitHub Action
 
 ```yaml
-name: PatchProof
+name: PatchProofer
 on:
   pull_request:
 
