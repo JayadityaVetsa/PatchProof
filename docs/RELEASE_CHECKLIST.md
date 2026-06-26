@@ -20,10 +20,10 @@
 
 ## Package and release
 
-- [ ] Package identity is `@jayadityavetsa/patchproof@0.1.0-alpha.2`.
+- [ ] Package identity is `@jayadityavetsa/patchproof@0.1.0-alpha.3`.
 - [ ] Tarball contents are manually reviewed.
 - [ ] npm account has two-factor authentication.
 - [ ] First scoped package publication is confirmed interactively.
 - [ ] npm trusted publishing is configured for `.github/workflows/release.yml`.
-- [ ] `v0.1.0-alpha.2` points at the verified commit.
+- [ ] `v0.1.0-alpha.3` points at the verified commit.
 - [ ] GitHub prerelease contains the tarball, SHA256 checksums, SBOM, notes, and known limitations.

@@ -24,7 +24,7 @@ Aggregate-only:
 ```json
 {
   "schemaVersion": 1,
-  "tool": { "name": "patchproof", "version": "0.1.0-alpha.2" },
+  "tool": { "name": "patchproof", "version": "0.1.0-alpha.3" },
   "repository": {
     "root": "<repository>",
     "baseSha": "41e8c91...",

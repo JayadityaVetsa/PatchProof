@@ -5,7 +5,7 @@ After installing dependencies:
 ```console
 corepack pnpm check
 corepack pnpm pack:cli
-npm install --global "artifacts/jayadityavetsa-patchproof-0.1.0-alpha.2.tgz"
+npm install --global "artifacts/jayadityavetsa-patchproof-0.1.0-alpha.3.tgz"
 patchproof --help
 patchproof inspect --base origin/main
 ```

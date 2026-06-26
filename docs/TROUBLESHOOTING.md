@@ -25,7 +25,7 @@ PatchProof installs each revision independently. Setup errors include the redact
 Relative paths are resolved from the current terminal directory. Use the absolute quoted path to the tarball:
 
 ```powershell
-npm install --global "C:\path\to\PatchProof\artifacts\jayadityavetsa-patchproof-0.1.0-alpha.2.tgz"
+npm install --global "C:\path\to\PatchProof\artifacts\jayadityavetsa-patchproof-0.1.0-alpha.3.tgz"
 ```
 
 After publication:
