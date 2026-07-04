@@ -10,7 +10,7 @@
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@babel/parser": "^7.27.5",
+    "@babel/parser": "^8.0.0",
     "@patchproof/adapter-api": "workspace:*",
     "minimatch": "^10.0.1"
   }
