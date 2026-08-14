@@ -16,6 +16,6 @@
     "@patchproof/git": "workspace:*",
     "@patchproof/process": "workspace:*",
     "yaml": "^2.8.0",
-    "zod": "^3.25.67"
+    "zod": "^4.4.3"
   }
 }
