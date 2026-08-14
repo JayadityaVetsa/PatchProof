@@ -7,8 +7,10 @@ import type {
   DetectionResult,
   Diagnostic,
   DiscoveredTest,
+  FailureReasonExtraction,
   NormalizedOutcome,
   PatchProofAdapter,
+  ProcessEvidence,
   RawProcessResult,
   RepositoryDiff,
   WorktreeContext,
@@ -192,6 +194,55 @@ function structuredOutcome(output: string): NormalizedOutcome | null {
     }
   }
   return null;
+}
+
+function structuredFailureReason(output: string): FailureReasonExtraction {
+  const candidates = output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("{") && line.endsWith("}"));
+  for (const candidate of candidates.reverse()) {
+    try {
+      const data = JSON.parse(candidate) as {
+        testResults?: readonly {
+          assertionResults?: readonly {
+            status?: string;
+            failureMessages?: readonly string[];
+            failureDetails?: readonly {
+              name?: string;
+              message?: string;
+              matcherResult?: { message?: string };
+            }[];
+          }[];
+        }[];
+      };
+      const failed =
+        data.testResults
+          ?.flatMap((suite) => suite.assertionResults ?? [])
+          .filter((assertion) => assertion.status === "failed") ?? [];
+      if (failed.length > 1) return { status: "ambiguous" };
+      const assertion = failed[0];
+      if (!assertion) continue;
+      const detail = assertion.failureDetails?.[0];
+      const rendered =
+        detail?.message ?? detail?.matcherResult?.message ?? assertion.failureMessages?.[0];
+      if (!rendered) return { status: "unavailable" };
+      const firstLine =
+        rendered
+          .split(/\r?\n/)
+          .find((line) => line.trim())
+          ?.trim() ?? "";
+      const prefixed = /^(?<type>[A-Za-z_$][\w.$]*(?:Error|Exception)):\s*(?<message>.*)$/.exec(
+        firstLine,
+      );
+      const type = detail?.name ?? prefixed?.groups?.type;
+      const message = prefixed?.groups?.message ?? firstLine;
+      return type && message ? { status: "available", type, message } : { status: "unavailable" };
+    } catch {
+      // Try an earlier structured reporter line.
+    }
+  }
+  return { status: "unavailable" };
 }
 
 export class JavaScriptAdapter implements PatchProofAdapter {
@@ -425,5 +476,10 @@ export class JavaScriptAdapter implements PatchProofAdapter {
 
   normalize(result: RawProcessResult): NormalizedOutcome {
     return resultOutcome(result);
+  }
+
+  extractFailureReason(result: ProcessEvidence): FailureReasonExtraction {
+    if (result.truncated) return { status: "truncated" };
+    return structuredFailureReason(`${result.stdout}\n${result.stderr}`);
   }
 }

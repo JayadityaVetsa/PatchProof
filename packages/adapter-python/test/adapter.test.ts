@@ -126,6 +126,66 @@ describe("Python adapter", () => {
     ).toBe("infrastructure_failure");
   });
 
+  it("recognizes only complete pytest failure banner lines", () => {
+    const adapter = new PythonAdapter({
+      executable: process.execPath,
+      argsPrefix: [],
+      display: process.execPath,
+    });
+    const result = (stdout: string) =>
+      adapter.normalize(
+        {
+          exitCode: 1,
+          signal: null,
+          stdout,
+          stderr: "",
+          timedOut: false,
+          interrupted: false,
+        },
+        "test",
+      );
+
+    expect(result("===== FAILURES =====")).toBe("assertion_failure");
+    expect(result(`${"=".repeat(200_000)} not a pytest failure banner`)).toBe(
+      "infrastructure_failure",
+    );
+  });
+
+  it("extracts a single pytest assertion reason and rejects ambiguity", () => {
+    const adapter = new PythonAdapter();
+    const evidence = (stdout: string) => ({
+      command: { executable: "pytest", display: "pytest" },
+      cwdRole: "base" as const,
+      startedAt: "2026-01-01T00:00:00.000Z",
+      durationMs: 1,
+      exitCode: 1,
+      signal: null,
+      outcome: "assertion_failure" as const,
+      stdout,
+      stderr: "",
+      truncated: false,
+    });
+    const test = {
+      id: "tests/test_value.py::test_value",
+      file: "tests/test_value.py",
+      displayName: "test_value",
+      changeKind: "added" as const,
+      granularity: "case" as const,
+      changedRanges: [{ startLine: 1, endLine: 2 }],
+      selectionReason: "added",
+      diagnostics: [],
+    };
+    expect(
+      adapter.extractFailureReason?.(evidence("E AssertionError: expected fixed"), test),
+    ).toEqual({ status: "available", type: "AssertionError", message: "expected fixed" });
+    expect(
+      adapter.extractFailureReason?.(
+        evidence("E AssertionError: first\nE AssertionError: second"),
+        test,
+      ),
+    ).toEqual({ status: "ambiguous" });
+  });
+
   it("runs explicit Python commands inside an isolated worktree environment", async () => {
     const root = await mkdtemp(join(tmpdir(), "patchproof-python environment with spaces-"));
     await writeFile(join(root, "pyproject.toml"), "[project]\nname='fixture'\nversion='0.0.0'\n");

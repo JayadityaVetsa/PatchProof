@@ -26,6 +26,11 @@ tests:
     - "**/generated/**"
   support:
     - "test/helpers/**"
+  expectedFailures:
+    "tests/value.test.ts::rejects negative values":
+      type: AssertionError
+      message: "negative values must be rejected"
+      contains: "negative values"
 
 report:
   format: text
@@ -64,6 +69,11 @@ Security-sensitive defaults are not weakened by ambiguous detection.
 - Paths are repository-relative and cannot escape the repository.
 - Placeholders must be from the documented set.
 - Invalid configuration fails before consent or command execution.
+- Expected-failure rules must use exact discovered test IDs and bounded, non-redacted text.
+
+## Expected failure reasons
+
+Reason rules are optional. A configured test becomes `proven` only when its base-side assertion type and message match exactly and the head passes. A `contains` hit is diagnostic-only and returns `not_proven`; unavailable, ambiguous, or truncated evidence is `inconclusive`. Reason text is used only in memory for comparison and is not serialized into reports.
 
 ## Command placeholders
 

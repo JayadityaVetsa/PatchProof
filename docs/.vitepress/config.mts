@@ -24,6 +24,20 @@ export default defineConfig({
     ],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
     [
+      "meta",
+      {
+        property: "og:image",
+        content: "https://jayadityavetsa.github.io/PatchProof/og.png",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:image",
+        content: "https://jayadityavetsa.github.io/PatchProof/og.png",
+      },
+    ],
+    [
       "script",
       { type: "application/ld+json" },
       JSON.stringify({
@@ -32,7 +46,7 @@ export default defineConfig({
         name: "PatchProof",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "Linux, macOS, Windows",
-        softwareVersion: "0.1.0-alpha.2",
+        softwareVersion: "0.1.0-alpha.3",
         license: "https://www.apache.org/licenses/LICENSE-2.0",
         codeRepository: "https://github.com/JayadityaVetsa/PatchProof",
         downloadUrl: "https://www.npmjs.com/package/@jayadityavetsa/patchproof",
@@ -46,6 +60,7 @@ export default defineConfig({
       { text: "Guide", link: "/getting-started/" },
       { text: "Reference", link: "/cli/" },
       { text: "Benchmarks", link: "/benchmarks/" },
+      { text: "Roadmap", link: "/roadmap/" },
       { text: "npm", link: "https://www.npmjs.com/package/@jayadityavetsa/patchproof" },
       { text: "GitHub", link: "https://github.com/JayadityaVetsa/PatchProof" },
     ],
@@ -85,6 +100,7 @@ export default defineConfig({
         items: [
           { text: "Benchmarks", link: "/benchmarks/" },
           { text: "Compared with adjacent tools", link: "/comparisons/" },
+          { text: "Roadmap", link: "/roadmap/" },
           { text: "FAQ", link: "/faq/" },
         ],
       },
