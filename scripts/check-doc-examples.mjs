@@ -42,6 +42,19 @@ const config = z
         include: z.array(z.string()).optional(),
         exclude: z.array(z.string()).optional(),
         support: z.array(z.string()).optional(),
+        expectedFailures: z
+          .record(
+            z.string(),
+            z
+              .object({
+                type: z.string().min(1),
+                message: z.string().min(1).optional(),
+                contains: z.string().min(8).optional(),
+              })
+              .strict()
+              .refine((rule) => rule.message !== undefined || rule.contains !== undefined),
+          )
+          .optional(),
       })
       .strict()
       .optional(),

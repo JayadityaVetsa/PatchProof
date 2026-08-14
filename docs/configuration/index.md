@@ -18,6 +18,11 @@ tests:
   include: ["tests/**/test_*.py"]
   exclude: ["tests/generated/**"]
   support: ["tests/helpers/**"]
+  expectedFailures:
+    "tests/test_orders.py::test_rejects_negative_quantity":
+      type: AssertionError
+      message: "negative quantity was accepted"
+      contains: "negative quantity"
 
 report:
   format: text
@@ -33,3 +38,9 @@ Placeholders:
 - `{worktree}`: managed worktree root.
 
 Unknown keys are errors. Paths cannot escape the repository. Use the published [JSON Schema](/patchproof.schema.json) for editor validation.
+
+## Reason-sensitive proof
+
+`tests.expectedFailures` is optional and keyed by the exact discovered test ID shown by `patchproof inspect`. When configured, `proven` requires an exactly attributed base assertion with the configured case-sensitive `type` and `message`, followed by a passing head run.
+
+`contains` is diagnostic-only: a substring match produces `not_proven`, never `proven`. Missing, ambiguous, or truncated reason evidence is `inconclusive`. Expected or observed reason text is never copied into reports; reports contain bounded diagnostic codes only. Rules for undiscovered tests fail before commands execute. Tests without rules keep the category-only behavior.

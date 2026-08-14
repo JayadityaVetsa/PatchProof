@@ -1,0 +1,231 @@
+:root {
+  --vp-c-brand-1: #17c98b;
+  --vp-c-brand-2: #10ad78;
+  --vp-c-brand-3: #0b8f65;
+  --vp-c-brand-soft: rgba(23, 201, 139, 0.14);
+  --pp-ink: #071611;
+  --pp-panel: rgba(247, 252, 249, 0.92);
+  --pp-line: rgba(7, 72, 49, 0.13);
+  --pp-gold: #f3c969;
+}
+
+.dark {
+  --vp-c-bg: #06100d;
+  --vp-c-bg-alt: #0a1813;
+  --vp-c-bg-soft: #10221b;
+  --vp-c-divider: rgba(153, 255, 215, 0.12);
+  --pp-panel: rgba(10, 31, 24, 0.74);
+  --pp-line: rgba(127, 255, 206, 0.16);
+}
+
+.VPHome {
+  position: relative;
+  overflow: hidden;
+}
+
+.VPHome::before {
+  position: absolute;
+  inset: -10rem -20rem auto;
+  height: 42rem;
+  background:
+    radial-gradient(circle at 68% 30%, rgba(23, 201, 139, 0.22), transparent 30%),
+    radial-gradient(circle at 25% 10%, rgba(243, 201, 105, 0.12), transparent 28%);
+  content: "";
+  pointer-events: none;
+}
+
+.VPHero .name,
+.VPHero .text {
+  letter-spacing: -0.045em;
+}
+
+.VPHero .name {
+  background: linear-gradient(115deg, #f5fff9 10%, #70edbd 58%, #f3c969);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.VPHero .tagline {
+  max-width: 44rem;
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+}
+
+.VPButton.brand {
+  border: 1px solid rgba(130, 255, 208, 0.48);
+  box-shadow: 0 12px 36px rgba(17, 183, 126, 0.22);
+}
+
+.VPFeature {
+  border-color: var(--pp-line) !important;
+  background: linear-gradient(145deg, rgba(18, 45, 35, 0.86), rgba(7, 22, 17, 0.7)) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.pp-kicker {
+  margin: 0 0 0.6rem;
+  color: var(--vp-c-brand-1);
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pp-section {
+  margin: 5rem auto;
+}
+
+.pp-section h2 {
+  max-width: 48rem;
+  border: 0;
+  padding: 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.pp-lede {
+  max-width: 46rem;
+  color: var(--vp-c-text-2);
+  font-size: 1.06rem;
+}
+
+.pp-proof-grid,
+.pp-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.pp-proof-card,
+.pp-trust-card,
+.pp-terminal {
+  border: 1px solid var(--pp-line);
+  border-radius: 18px;
+  background: var(--pp-panel);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.16);
+}
+
+.pp-proof-card,
+.pp-trust-card {
+  padding: 1.4rem;
+}
+
+.pp-proof-card strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--vp-c-text-1);
+  font-size: 1.08rem;
+}
+
+.pp-proof-card span {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-weight: 800;
+}
+
+.pp-proof-card p,
+.pp-trust-card p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+}
+
+.pp-terminal {
+  overflow: hidden;
+  margin-top: 1.75rem;
+}
+
+.pp-terminal-bar {
+  display: flex;
+  gap: 0.42rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--pp-line);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.pp-terminal-bar i {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.pp-terminal pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 1.35rem;
+  background: transparent;
+  color: #d9ffef;
+  font-size: 0.9rem;
+}
+
+.pp-terminal .ok {
+  color: #5fe2ae;
+}
+
+.pp-terminal .muted {
+  color: #79958a;
+}
+
+.pp-trust-card b {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--pp-gold);
+  font-size: 1.45rem;
+}
+
+.pp-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 5rem auto 2rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid rgba(77, 235, 176, 0.3);
+  border-radius: 24px;
+  background: linear-gradient(125deg, rgba(16, 65, 47, 0.92), rgba(9, 27, 21, 0.9));
+}
+
+.pp-cta h2 {
+  margin: 0 0 0.5rem;
+  border: 0;
+  padding: 0;
+}
+
+.pp-cta p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+}
+
+.pp-cta a {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 0.75rem 1.1rem;
+  background: #55e4ae;
+  color: var(--pp-ink);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .pp-proof-grid,
+  .pp-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pp-section {
+    margin: 3.5rem auto;
+  }
+
+  .pp-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

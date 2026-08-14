@@ -114,6 +114,18 @@ export interface AdapterConfiguration {
   readonly support: readonly string[];
 }
 
+export interface ExpectedFailureRule {
+  readonly type: string;
+  readonly message: string;
+  readonly contains?: string | undefined;
+}
+
+export type FailureReasonExtraction =
+  | { readonly status: "available"; readonly type: string; readonly message: string }
+  | { readonly status: "ambiguous" }
+  | { readonly status: "unavailable" }
+  | { readonly status: "truncated" };
+
 export type CommandTemplate = string | readonly string[];
 
 export interface PatchProofAdapter {
@@ -126,6 +138,7 @@ export interface PatchProofAdapter {
   targetedTestPlan(test: DiscoveredTest, context: WorktreeContext): Promise<CommandSpec>;
   suitePlan(context: WorktreeContext): Promise<CommandSpec>;
   normalize(result: RawProcessResult, phase: "test" | "suite"): NormalizedOutcome;
+  extractFailureReason?(result: ProcessEvidence, test: DiscoveredTest): FailureReasonExtraction;
 }
 
 export interface RawProcessResult {

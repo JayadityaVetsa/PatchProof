@@ -5,6 +5,7 @@ import type {
   CommandSpec,
   Diagnostic,
   DiscoveredTest,
+  ExpectedFailureRule,
   InspectionResult,
   NormalizedOutcome,
   PatchProofAdapter,
@@ -28,7 +29,12 @@ import {
   transplantFiles,
 } from "@patchproof/git";
 import { runCommand } from "@patchproof/process";
-import { aggregateStatus, classifyTest, compareSuites } from "./classifier.js";
+import {
+  aggregateStatus,
+  classifyExpectedFailure,
+  classifyTest,
+  compareSuites,
+} from "./classifier.js";
 import type { PatchProofConfig } from "./config.js";
 import { redactText, sanitizeReport, secretEnvironmentValues } from "./privacy.js";
 
@@ -264,6 +270,18 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
         const diff = await computeDiff(root, baseSha, headSha);
         const tests = await selected.adapter.discoverTests(context, diff);
         const eligible = tests.filter((test) => test.changeKind !== "deleted");
+        const expectedFailures = options.config.tests.expectedFailures ?? {};
+        const expectedFailureIds = Object.keys(expectedFailures);
+        const discoveredIds = new Set(eligible.map((test) => test.id));
+        const undiscoveredRules = expectedFailureIds.filter((id) => !discoveredIds.has(id));
+        if (undiscoveredRules.length) {
+          throw new Error(
+            `Expected-failure rules reference undiscovered tests: ${undiscoveredRules.join(", ")}`,
+          );
+        }
+        if (expectedFailureIds.length && !selected.adapter.extractFailureReason) {
+          throw new Error(`The ${selected.adapter.name} adapter cannot extract failure reasons.`);
+        }
         const deleted = tests.filter((test) => test.changeKind === "deleted");
         for (const test of deleted) {
           globalDiagnostics.push({
@@ -381,6 +399,8 @@ export async function prepareRun(options: EngineOptions): Promise<PreparedRun> {
               baseContext,
               headContext,
               options.config.execution.timeoutSeconds * 1000,
+              expectedFailures[test.id],
+              expectedFailureIds.length > 0,
               options.signal,
             ),
           );
@@ -440,6 +460,8 @@ async function evaluateTest(
   baseContext: WorktreeContext,
   headContext: WorktreeContext,
   timeoutMs: number,
+  expectedFailure: ExpectedFailureRule | undefined,
+  reasonChecksEnabled: boolean,
   signal?: AbortSignal,
 ): Promise<TestEvidence> {
   try {
@@ -451,6 +473,33 @@ async function evaluateTest(
       execute(adapter, baseCommand, baseContext, timeoutMs, signal),
       execute(adapter, headCommand, headContext, timeoutMs, signal),
     ]);
+    let status = classifyTest(base.outcome, head.outcome);
+    const reasonDiagnostics: Diagnostic[] = [];
+    if (expectedFailure && base.outcome === "assertion_failure" && head.outcome === "pass") {
+      const observed = adapter.extractFailureReason?.(base, test) ?? { status: "unavailable" };
+      const reason = classifyExpectedFailure(base.outcome, head.outcome, expectedFailure, observed);
+      status = reason.status;
+      const summaries: Record<typeof reason.code, string> = {
+        PP_REASON_MATCH: "The base failure exactly matches the configured expected reason.",
+        PP_REASON_MISMATCH: "The base failure does not match the configured expected reason.",
+        PP_REASON_PARTIAL_MATCH:
+          "The base failure contains the diagnostic literal but is not an exact reason match.",
+        PP_REASON_AMBIGUOUS: "Multiple base failure reasons prevented exact attribution.",
+        PP_REASON_UNAVAILABLE: "A structured base failure reason was unavailable.",
+        PP_REASON_TRUNCATED: "Truncated base output prevented exact failure-reason matching.",
+      };
+      reasonDiagnostics.push({
+        code: reason.code,
+        severity: reason.status === "proven" ? "info" : "warning",
+        summary: summaries[reason.code],
+      });
+    } else if (reasonChecksEnabled && !expectedFailure) {
+      reasonDiagnostics.push({
+        code: "PP_REASON_NOT_CHECKED",
+        severity: "info",
+        summary: "No expected-failure rule was configured for this test.",
+      });
+    }
     return {
       id: test.id,
       file: test.file,
@@ -462,10 +511,10 @@ async function evaluateTest(
         reason: test.selectionReason,
         ...(test.fallbackReason ? { fallbackReason: test.fallbackReason } : {}),
       },
-      status: classifyTest(base.outcome, head.outcome),
+      status,
       base,
       head,
-      diagnostics: test.diagnostics,
+      diagnostics: [...test.diagnostics, ...reasonDiagnostics],
     };
   } catch (error) {
     return {

@@ -5,15 +5,20 @@ import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
+const root = resolve(import.meta.dirname, "..");
+const windowsRunner = join(root, "scripts", "run-command.ps1");
+const runWindowsCommand = (file, args, options) =>
+  exec(
+    "powershell.exe",
+    ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", windowsRunner, file, ...args],
+    options,
+  );
 const runTool = (name, args, options) =>
   process.platform === "win32"
-    ? exec(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", `${name}.cmd`, ...args], options)
+    ? runWindowsCommand(`${name}.cmd`, args, options)
     : exec(name, args, options);
 const runExecutable = (file, args, options) =>
-  process.platform === "win32"
-    ? exec(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", "call", file, ...args], options)
-    : exec(file, args, options);
-const root = resolve(import.meta.dirname, "..");
+  process.platform === "win32" ? runWindowsCommand(file, args, options) : exec(file, args, options);
 const { version: releaseVersion } = JSON.parse(await readFile(join(root, "version.json"), "utf8"));
 const expectedTarball = `jayadityavetsa-patchproof-${releaseVersion}.tgz`;
 const artifacts = join(root, "artifacts");

@@ -1,6 +1,6 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
-import type { AdapterName, CommandTemplate } from "@patchproof/adapter-api";
+import type { AdapterName, CommandTemplate, ExpectedFailureRule } from "@patchproof/adapter-api";
 import { parse } from "yaml";
 import { z } from "zod";
 
@@ -13,6 +13,31 @@ const commandSchema = z.union([
     .readonly(),
 ]);
 const durationSchema = z.number().int().positive().max(86_400);
+const reasonTextSchema = z
+  .string()
+  .min(1)
+  .max(512)
+  .refine(
+    (value) =>
+      ![...value].some((character) => {
+        const codePoint = character.codePointAt(0) ?? 0;
+        return codePoint <= 31 || codePoint === 127;
+      }),
+    "Failure reasons cannot contain control characters.",
+  )
+  .refine(
+    (value) => !value.includes("[REDACTED]"),
+    "Failure reasons cannot contain redaction sentinels.",
+  );
+const expectedFailureSchema = z
+  .object({
+    type: reasonTextSchema.refine((value) => value.length <= 128, "Failure types are too long."),
+    message: reasonTextSchema,
+    contains: reasonTextSchema
+      .refine((value) => value.length >= 8, "Diagnostic literals must be at least 8 characters.")
+      .optional(),
+  })
+  .strict();
 const schema = z
   .object({
     version: z.literal(1),
@@ -37,6 +62,7 @@ const schema = z
         include: z.array(z.string()).default([]),
         exclude: z.array(z.string()).default([]),
         support: z.array(z.string()).default([]),
+        expectedFailures: z.record(z.string().min(1), expectedFailureSchema).default({}),
       })
       .strict()
       .default({}),
@@ -69,6 +95,7 @@ export interface PatchProofConfig {
     readonly include: readonly string[];
     readonly exclude: readonly string[];
     readonly support: readonly string[];
+    readonly expectedFailures: Readonly<Record<string, ExpectedFailureRule>>;
   };
   readonly report: {
     readonly format: "text" | "markdown" | "json";
@@ -158,6 +185,15 @@ export async function loadConfig(
         : {}),
       timeoutSeconds: overrides.timeoutSeconds ?? envTimeout ?? parsed.execution.timeoutSeconds,
       keepWorktrees: overrides.keepWorktrees ?? parsed.execution.keepWorktrees,
+    },
+    tests: {
+      ...parsed.tests,
+      expectedFailures: Object.fromEntries(
+        Object.entries(parsed.tests.expectedFailures).map(([id, rule]) => [
+          id,
+          Object.freeze({ ...rule }),
+        ]),
+      ),
     },
     report: {
       ...parsed.report,

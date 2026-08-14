@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { aggregateStatus, classifyTest, compareSuites, exitCodeFor } from "../src/index.js";
+import {
+  aggregateStatus,
+  classifyExpectedFailure,
+  classifyTest,
+  compareSuites,
+  exitCodeFor,
+} from "../src/index.js";
 
 describe("classifyTest", () => {
   it.each([
@@ -20,6 +26,39 @@ describe("classifyTest", () => {
       for (const head of ["pass", "assertion_failure", ...outcomes] as const) {
         expect(classifyTest(base, head)).not.toBe("proven");
       }
+    }
+  });
+});
+
+describe("expected failure reasons", () => {
+  const rule = { type: "AssertionError", message: "expected 2 but got 1", contains: "got 1" };
+
+  it("requires an exact type and message before returning proven", () => {
+    expect(
+      classifyExpectedFailure("assertion_failure", "pass", rule, {
+        status: "available",
+        type: "AssertionError",
+        message: "expected 2 but got 1",
+      }),
+    ).toEqual({ status: "proven", code: "PP_REASON_MATCH" });
+    expect(
+      classifyExpectedFailure("assertion_failure", "pass", rule, {
+        status: "available",
+        type: "AssertionError",
+        message: "fixture empty; got 1",
+      }),
+    ).toEqual({ status: "not_proven", code: "PP_REASON_PARTIAL_MATCH" });
+  });
+
+  it("fails closed when reason evidence is unavailable or ambiguous", () => {
+    for (const observed of [
+      { status: "unavailable" as const },
+      { status: "ambiguous" as const },
+      { status: "truncated" as const },
+    ]) {
+      expect(classifyExpectedFailure("assertion_failure", "pass", rule, observed).status).toBe(
+        "inconclusive",
+      );
     }
   });
 });

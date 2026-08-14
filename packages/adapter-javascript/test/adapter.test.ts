@@ -143,4 +143,50 @@ describe("JavaScript adapter", () => {
       ),
     ).toBe("infrastructure_failure");
   });
+
+  it("extracts one structured assertion reason without exposing stack text", () => {
+    const adapter = new JavaScriptAdapter();
+    const observed = adapter.extractFailureReason?.(
+      {
+        command: { executable: "vitest", display: "vitest" },
+        cwdRole: "base",
+        startedAt: "2026-01-01T00:00:00.000Z",
+        durationMs: 1,
+        exitCode: 1,
+        signal: null,
+        outcome: "assertion_failure",
+        stdout: JSON.stringify({
+          testResults: [
+            {
+              assertionResults: [
+                {
+                  status: "failed",
+                  failureDetails: [
+                    { name: "AssertionError", message: "expected 2 but got 1\n    at test.ts:4" },
+                  ],
+                },
+              ],
+            },
+          ],
+        }),
+        stderr: "",
+        truncated: false,
+      },
+      {
+        id: "value.test.ts::value",
+        file: "value.test.ts",
+        displayName: "value",
+        changeKind: "added",
+        granularity: "case",
+        changedRanges: [{ startLine: 1, endLine: 4 }],
+        selectionReason: "added",
+        diagnostics: [],
+      },
+    );
+    expect(observed).toEqual({
+      status: "available",
+      type: "AssertionError",
+      message: "expected 2 but got 1",
+    });
+  });
 });

@@ -9,8 +9,10 @@ import type {
   DetectionResult,
   Diagnostic,
   DiscoveredTest,
+  FailureReasonExtraction,
   NormalizedOutcome,
   PatchProofAdapter,
+  ProcessEvidence,
   RawProcessResult,
   RepositoryDiff,
   WorktreeContext,
@@ -262,13 +264,26 @@ function normalizePytest(result: RawProcessResult): NormalizedOutcome {
   const output = `${result.stdout}\n${result.stderr}`;
   if (
     result.exitCode === 1 &&
-    (/=+ FAILURES =+/.test(output) ||
+    (/^=+ FAILURES =+$/m.test(output) ||
       /\bAssertionError\b/.test(output) ||
       /\bassert .+/.test(output))
   ) {
     return "assertion_failure";
   }
   return "infrastructure_failure";
+}
+
+function pytestFailureReason(result: ProcessEvidence): FailureReasonExtraction {
+  if (result.truncated) return { status: "truncated" };
+  const reasons = `${result.stdout}\n${result.stderr}`
+    .split(/\r?\n/)
+    .map((line) => /^\s*(?:E\s+)?AssertionError:\s*(.+)\s*$/.exec(line)?.[1]?.trim())
+    .filter((message): message is string => Boolean(message));
+  const unique = [...new Set(reasons)];
+  if (unique.length > 1) return { status: "ambiguous" };
+  return unique[0]
+    ? { status: "available", type: "AssertionError", message: unique[0] }
+    : { status: "unavailable" };
 }
 
 function pythonInVenv(worktree: string, projectRoot: string): string {
@@ -566,5 +581,9 @@ export class PythonAdapter implements PatchProofAdapter {
 
   normalize(result: RawProcessResult): NormalizedOutcome {
     return normalizePytest(result);
+  }
+
+  extractFailureReason(result: ProcessEvidence): FailureReasonExtraction {
+    return pytestFailureReason(result);
   }
 }

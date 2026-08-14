@@ -30,7 +30,20 @@
       "properties": {
         "include": { "$ref": "#/$defs/strings" },
         "exclude": { "$ref": "#/$defs/strings" },
-        "support": { "$ref": "#/$defs/strings" }
+        "support": { "$ref": "#/$defs/strings" },
+        "expectedFailures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "message"],
+            "properties": {
+              "type": { "type": "string", "minLength": 1, "maxLength": 128 },
+              "message": { "type": "string", "minLength": 1, "maxLength": 512 },
+              "contains": { "type": "string", "minLength": 8, "maxLength": 512 }
+            }
+          }
+        }
       }
     },
     "report": {
