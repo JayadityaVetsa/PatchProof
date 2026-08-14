@@ -277,7 +277,13 @@ function pytestFailureReason(result: ProcessEvidence): FailureReasonExtraction {
   if (result.truncated) return { status: "truncated" };
   const reasons = `${result.stdout}\n${result.stderr}`
     .split(/\r?\n/)
-    .map((line) => /^\s*(?:E\s+)?AssertionError:\s*(.+)\s*$/.exec(line)?.[1]?.trim())
+    .map((line) => {
+      let diagnostic = line.trimStart();
+      if (diagnostic.startsWith("E ")) diagnostic = diagnostic.slice(2).trimStart();
+      const prefix = "AssertionError:";
+      if (!diagnostic.startsWith(prefix)) return undefined;
+      return diagnostic.slice(prefix.length).trim() || undefined;
+    })
     .filter((message): message is string => Boolean(message));
   const unique = [...new Set(reasons)];
   if (unique.length > 1) return { status: "ambiguous" };
