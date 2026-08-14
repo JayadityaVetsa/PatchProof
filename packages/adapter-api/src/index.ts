@@ -2,18 +2,9 @@ export type AdapterName = "javascript" | "python";
 export type TestStatus = "proven" | "not_proven" | "still_failing" | "inconclusive";
 export type AggregateStatus = TestStatus | "no_tests" | "regression" | "error";
 export type NormalizedOutcome =
-  | "pass"
-  | "assertion_failure"
-  | "infrastructure_failure"
-  | "timeout"
-  | "interrupted";
+  "pass" | "assertion_failure" | "infrastructure_failure" | "timeout" | "interrupted";
 export type SuiteStatus =
-  | "healthy"
-  | "regression"
-  | "improved"
-  | "pre_existing_failure"
-  | "inconclusive"
-  | "not_run";
+  "healthy" | "regression" | "improved" | "pre_existing_failure" | "inconclusive" | "not_run";
 
 export const TOOL_NAME = "patchproof" as const;
 export { TOOL_VERSION } from "./version.generated.js";

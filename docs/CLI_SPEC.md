@@ -14,24 +14,24 @@ patchproof inspect [options]
 
 ## Inputs
 
-| Option                  | Purpose                            | Default                                                          |
+| Option | Purpose | Default |
 | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- | ------------- | ---------------------------------------------- |
-| `--base <ref>`          | Base revision                      | merge base with configured/default branch; in CI, event base SHA |
-| `--head <ref>`          | Head revision                      | `HEAD`; in CI, event head SHA                                    |
-| `--config <path>`       | Configuration file                 | nearest `.patchproof.yml`                                        |
-| `--adapter <name>`      | `javascript` or `python`           | high-confidence detection                                        |
-| `--test-command <cmd>`  | Explicit targeted command template | configuration/adapter                                            |
-| `--suite-command <cmd>` | Existing-suite command             | configuration/adapter                                            |
-| `--setup-command <cmd>` | Dependency/setup command           | configuration/adapter                                            |
-| `--timeout <duration>`  | Per-test timeout                   | configuration default                                            |
-| `--format <text         | markdown                           | json>`                                                           | Output format | `text` on terminal, `json` only when requested |
-| `--output <path>`       | Write report to file               | stdout                                                           |
-| `--yes`                 | Approve host execution             | false locally                                                    |
-| `--allow-dirty`         | Permit dirty active worktree       | false                                                            |
-| `--keep-worktrees`      | Retain temporary worktrees         | false                                                            |
-| `--no-color`            | Disable color                      | honors `NO_COLOR`                                                |
-| `--quiet`               | Suppress progress, retain result   | false                                                            |
-| `--debug`               | Include diagnostic detail          | false                                                            |
+| `--base <ref>` | Base revision | merge base with configured/default branch; in CI, event base SHA |
+| `--head <ref>` | Head revision | `HEAD`; in CI, event head SHA |
+| `--config <path>` | Configuration file | nearest `.patchproof.yml` |
+| `--adapter <name>` | `javascript` or `python` | high-confidence detection |
+| `--test-command <cmd>` | Explicit targeted command template | configuration/adapter |
+| `--suite-command <cmd>` | Existing-suite command | configuration/adapter |
+| `--setup-command <cmd>` | Dependency/setup command | configuration/adapter |
+| `--timeout <duration>` | Per-test timeout | configuration default |
+| `--format <text         | markdown                           | json>` | Output format | `text` on terminal, `json` only when requested |
+| `--output <path>` | Write report to file | stdout |
+| `--yes` | Approve host execution | false locally |
+| `--allow-dirty` | Permit dirty active worktree | false |
+| `--keep-worktrees` | Retain temporary worktrees | false |
+| `--no-color` | Disable color | honors `NO_COLOR` |
+| `--quiet` | Suppress progress, retain result | false |
+| `--debug` | Include diagnostic detail | false |
 
 Exact flag naming may change before implementation, but behavior and safety requirements are normative.
 
