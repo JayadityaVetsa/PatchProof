@@ -15,7 +15,7 @@
     "@patchproof/adapter-python": "workspace:*",
     "@patchproof/git": "workspace:*",
     "@patchproof/process": "workspace:*",
-    "yaml": "^2.8.0",
+    "yaml": "^2.9.1",
     "zod": "^3.25.67"
   }
 }
